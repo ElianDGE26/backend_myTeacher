@@ -18,7 +18,7 @@ class Server {
         
         connectionDb();
         this.middlewares();
-        this.routes(); // <- ¡Esto es importante!
+        this.routes(); 
     }
 
 

@@ -1,4 +1,5 @@
 import { UserModel } from "../models/userModels";
+import { Query } from "../types/reporsitoryTypes";
 import { IUserRepository, User } from "../types/usersTypes";
 
 
@@ -27,7 +28,9 @@ export class UserRepository implements IUserRepository{
         return result ? true : false;
     }
 
-
+    async findOne (query: Query): Promise<User | null> {
+        return await UserModel.findOne(query).exec();
+    }
 
 
 }

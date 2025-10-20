@@ -35,7 +35,7 @@ class Server {
 
     //rutas principales
     routes() {
-        this.app.use('/api/users', userRoutes());
+        this.app.use('/api/users', userRoutes);
     }
 }
 

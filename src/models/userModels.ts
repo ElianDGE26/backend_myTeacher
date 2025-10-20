@@ -1,23 +1,24 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import { User } from "../types/usersTypes";
+import bcrypt from "bcryptjs";
 
 
 const UserSchema: Schema = new Schema<User>(
   {
-    name: { type: String, required: false },
+    name: { type: String, required: true },
     balance: { type: Number, required: false, default: 0 },
-    email: { type: String, required: false, unique: true },
-    password: { type: String, required: false },
+    email: { type: String, required: true, unique: true },
+    password: { type: String, required: true, trim: true },
     role: {
       type: String,
       enum: ["student", "teacher", "admin"],
-      required: false,
+      required: true,
     },
     validatedTeacher: { type: Boolean, default: false },
-    phone: { type: String },
+    phone: { type: String, required: true },
     location: {
-      city: { type: String, required: false },
-      country: { type: String, required: false },
+      city: { type: String, required: true },
+      country: { type: String, required: true },
     },
     subjects: [
       {
@@ -41,8 +42,36 @@ const UserSchema: Schema = new Schema<User>(
   {
     timestamps: true,
     versionKey: false,
+    toJSON: {
+      transform: (doc, ret: any) => {
+        return {
+          _id: ret._id,
+          name: ret.name,
+          balance: ret.balance,
+          email: ret.email,
+          password: ret.password,
+          role: ret.role,
+          validatedTeacher: ret.validatedTeacher,
+          phone: ret.phone,
+          location: ret.location,
+          subjects: ret.subjects,
+          availability: ret.availability,
+          reputation: ret.reputation,
+        };
+      }
+    }
   }
 );
+
+
+UserSchema.pre<User>("save", async function (next){
+  if (this.isModified("password") || this.isNew) {
+      const salt = await bcrypt.genSalt(12);
+      const hash = await bcrypt.hash(this.password, salt);
+      this.password = hash;
+  }
+      next();
+})
 
 
 

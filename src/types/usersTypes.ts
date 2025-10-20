@@ -1,7 +1,7 @@
-import { Repository } from "./reporsitoryTypes";
+import { Document } from "mongoose";
+import { Repository, Query} from "./reporsitoryTypes";
 
-export interface User {
-    id: string;
+export interface User extends Document {
     name: string;
     balance: number;
     email: string;
@@ -29,12 +29,15 @@ export interface User {
     };
 }
 
-export interface IUserRepository extends Repository<User> {}
+export interface IUserRepository extends Repository<User> {
+    findOne(query: Query): Promise<User | null>;
+}
 
 export interface IUserService {
     createUser(user: User): Promise<User>;
     findAllUsers(): Promise<User[]>;
     findUserById(id: string): Promise<User | null>;
+    findUserByEmail(email: string): Promise<User | null>;
     updateUserById(id: string, user: Partial<User>): Promise<User | null>;
     deleteUserById(id: string): Promise<boolean>;
 }

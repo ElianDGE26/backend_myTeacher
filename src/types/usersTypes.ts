@@ -27,6 +27,7 @@ export interface User extends Document {
         rating: number;
         rewiewsCount: number;
     };
+    comparePassword(password: string): Promise<boolean>;
 }
 
 export interface IUserRepository extends Repository<User> {

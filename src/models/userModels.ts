@@ -49,7 +49,6 @@ const UserSchema: Schema = new Schema<User>(
           name: ret.name,
           balance: ret.balance,
           email: ret.email,
-          password: ret.password,
           role: ret.role,
           validatedTeacher: ret.validatedTeacher,
           phone: ret.phone,
@@ -71,7 +70,17 @@ UserSchema.pre<User>("save", async function (next){
       this.password = hash;
   }
       next();
-})
+});
+
+UserSchema.method("comparePassword", async function (passwordCompare: string): Promise<boolean> {
+  return bcrypt.compare(passwordCompare, this.password as string);
+});
+
+/* UserSchema.methods.toJSON = function() {
+  const object = this.toObject();
+  delete object.password;
+  return object;
+} */
 
 
 

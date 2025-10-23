@@ -1,28 +1,20 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { Repository, Query} from "./reporsitoryTypes";
 
 export interface User extends Document {
     name: string;
-    balance: number;
     email: string;
     password: string;
     role: 'student' | 'teacher' | 'admin';
     validatedTeacher: boolean;
     phone?: string;
+    balance: number;
+    subjects?: Types.ObjectId[];
+    availability?: Types.ObjectId[];
     location: {
         city: string;
         country: string;
     };
-    subjects?: {
-        name: string;
-        educationLevel: string;
-        description: string;
-    }[];
-    availability?: {
-        day: string;
-        starTime: string;
-        endTime: string;
-    }[];
     reputation: {
         rating: number;
         rewiewsCount: number;
@@ -36,7 +28,7 @@ export interface IUserRepository extends Repository<User> {
 
 export interface IUserService {
     createUser(user: User): Promise<User>;
-    findAllUsers(): Promise<User[]>;
+    findAllUsers(query?: Query): Promise<User[]>;
     findUserById(id: string): Promise<User | null>;
     findUserByEmail(email: string): Promise<User | null>;
     updateUserById(id: string, user: Partial<User>): Promise<User | null>;

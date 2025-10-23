@@ -20,3 +20,14 @@ export default {
   jwtSecret: JWT_SECRET || 'mysecret',
 };
 
+
+export const MODEL_NAMES = {
+  USER: "users",
+  SUBJECT: "subjects",
+  PQR: "pqrs",
+  PAYMENTS: "payments",
+  BOOKINGS: "bookings",
+  REVIEWS: "reviews",
+  AVAILABILITIES: "availabilities",
+  // agrega más modelos si tienes
+};

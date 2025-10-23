@@ -1,12 +1,14 @@
 import mongoose, { Schema, Document } from "mongoose";
 import { User } from "../types/usersTypes";
 import bcrypt from "bcryptjs";
+import { MODEL_NAMES } from "../config/config";
+
+const COLLECTION_NAME: string = MODEL_NAMES.USER;
 
 
 const UserSchema: Schema = new Schema<User>(
   {
     name: { type: String, required: true },
-    balance: { type: Number, required: false, default: 0 },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true, trim: true },
     role: {
@@ -14,6 +16,7 @@ const UserSchema: Schema = new Schema<User>(
       enum: ["student", "teacher", "admin"],
       required: true,
     },
+    balance: { type: Number, required: false, default: 0 },
     validatedTeacher: { type: Boolean, default: false },
     phone: { type: String, required: true },
     location: {
@@ -21,18 +24,18 @@ const UserSchema: Schema = new Schema<User>(
       country: { type: String, required: true },
     },
     subjects: [
-      {
-        name: { type: String, required: false },
-        educationLevel: { type: String, required: false },
-        description: { type: String, required: false },
+      { 
+        type: Schema.Types.ObjectId, 
+        ref: MODEL_NAMES.SUBJECT,
+        required: false
       },
     ],
     availability: [
       {
-        day: { type: String, required: false },
-        starTime: { type: String, required: false },
-        endTime: { type: String, required: false },
-      },
+        type: Schema.Types.ObjectId,
+        ref: MODEL_NAMES.AVAILABILITIES,
+        required: false
+      }
     ],
     reputation: {
       rating: { type: Number, default: 0 },
@@ -42,7 +45,7 @@ const UserSchema: Schema = new Schema<User>(
   {
     timestamps: true,
     versionKey: false,
-    toJSON: {
+     toJSON: {
       transform: (doc, ret: any) => {
         return {
           _id: ret._id,
@@ -57,8 +60,8 @@ const UserSchema: Schema = new Schema<User>(
           availability: ret.availability,
           reputation: ret.reputation,
         };
-      }
-    }
+      } 
+    } 
   }
 );
 
@@ -76,15 +79,7 @@ UserSchema.method("comparePassword", async function (passwordCompare: string): P
   return bcrypt.compare(passwordCompare, this.password as string);
 });
 
-/* UserSchema.methods.toJSON = function() {
-  const object = this.toObject();
-  delete object.password;
-  return object;
-} */
-
-
-
-export const UserModel = mongoose.model<User>("users", UserSchema);
+export const UserModel = mongoose.model<User>(COLLECTION_NAME, UserSchema);
 
 
 

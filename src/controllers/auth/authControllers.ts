@@ -3,11 +3,10 @@ import { UserRepository } from "../../repositories/userRepositories";
 import { UserService } from "../../services/userService";
 import { Request, Response } from "express";
 import jsonWebToken from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
+import config from '../../config/config';
 
 // Clave secreta para firmar los tokens JWT
-const SECRET_KEY = process.env.SECRET_KEY || "ClaveSecreta";
+const SECRET_KEY = config.jwtSecret;
 
 const userRepository: IUserRepository = new UserRepository();
 const userService: IUserService = new UserService(userRepository);
@@ -51,6 +50,7 @@ export const loginUser = async (req: Request, res: Response) => {
     try {
 
         const { email, password } = req.body;
+        
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
         }
@@ -67,7 +67,6 @@ export const loginUser = async (req: Request, res: Response) => {
 
         // token JWT
         const token = jsonWebToken.sign({
-            id: user._id, 
             email: user.email, 
             role: user.role
         },SECRET_KEY,

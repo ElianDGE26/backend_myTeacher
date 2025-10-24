@@ -1,21 +1,21 @@
 import { Router } from "express";
 import { createAvailability, getAllAvailabilities, getAvailabilityByid, updateAvailabilityByid, deleteAvailabilityByid} from "../controllers/availabilityControllers";
-
+import { verifyToken } from "../middelwears/authMiddelwears";
 const router = Router();
 
 
 //Rutas Get
-router.get("/", getAllAvailabilities);
-router.get("/:id", getAvailabilityByid);
+router.get("/", verifyToken, getAllAvailabilities);
+router.get("/:id", verifyToken, getAvailabilityByid);
 
 //Rutas Post
-router.post("/create", createAvailability);
+router.post("/create", verifyToken, createAvailability);
 
 //Rutas Put
-router.put("/update/:id", updateAvailabilityByid);
+router.put("/update/:id",verifyToken,  updateAvailabilityByid);
 
 //Rutas Delete
-router.delete("/delete/:id", deleteAvailabilityByid);
+router.delete("/delete/:id", verifyToken, deleteAvailabilityByid);
 
 
 export default router;

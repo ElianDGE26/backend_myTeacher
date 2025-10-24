@@ -13,16 +13,6 @@ const PaymentSchema: Schema = new Schema<Payments>(
       ref: MODEL_NAMES.BOOKINGS, 
       required: true 
     },
-    tutorId: {
-      type: Schema.Types.ObjectId,
-      ref: MODEL_NAMES.USER,
-      required: true
-    },
-    studentId: {
-      type: Schema.Types.ObjectId,
-      ref: MODEL_NAMES.USER,
-      required: true
-    },
     method: {
       type: String,
       enum: ["card", "bank_transfer", "paypal"],

@@ -40,8 +40,8 @@ class Server {
     //rutas principales
     routes() {
         this.app.use('/api/users', userRoutes);
-        this.app.use('api/subjects', subjectRoutes);
-        this.app.use('api/pqrs', pqrRoutes);
+        this.app.use('/api/subjects', subjectRoutes);
+        this.app.use('/api/pqrs', pqrRoutes);
         this.app.use('/api/availabilities', availabilityRoutes);
         this.app.use('/api/bookings', bookingRoutes);
         this.app.use('/api/reviews', reviewRoutes);

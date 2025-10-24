@@ -9,8 +9,6 @@ export interface User extends Document {
     validatedTeacher: boolean;
     phone?: string;
     balance: number;
-    subjects?: Types.ObjectId[];
-    availability?: Types.ObjectId[];
     location: {
         city: string;
         country: string;

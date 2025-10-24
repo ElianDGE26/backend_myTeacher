@@ -23,20 +23,6 @@ const UserSchema: Schema = new Schema<User>(
       city: { type: String, required: true },
       country: { type: String, required: true },
     },
-    subjects: [
-      { 
-        type: Schema.Types.ObjectId, 
-        ref: MODEL_NAMES.SUBJECT,
-        required: false
-      },
-    ],
-    availability: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: MODEL_NAMES.AVAILABILITIES,
-        required: false
-      }
-    ],
     reputation: {
       rating: { type: Number, default: 0 },
       rewiewsCount: { type: Number, default: 0 },
@@ -56,8 +42,6 @@ const UserSchema: Schema = new Schema<User>(
           validatedTeacher: ret.validatedTeacher,
           phone: ret.phone,
           location: ret.location,
-          subjects: ret.subjects,
-          availability: ret.availability,
           reputation: ret.reputation,
         };
       } 

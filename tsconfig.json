@@ -7,9 +7,9 @@
 
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
-    "module": "commonjs",
+    "module": "node16",
     "target": "es2020",
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "resolveJsonModule": true,
     "types": ["node"],
     // For nodejs:
@@ -37,14 +37,12 @@
     // "noUnusedParameters": true,
     // "noFallthroughCasesInSwitch": true,
     // "noPropertyAccessFromIndexSignature": true,
-
-
-    
     // Recommended Options
 
     // Permitir imports tipo ES
     "esModuleInterop": true,
     "verbatimModuleSyntax": false,
+    "typeRoots": ["@types", "./node_modules/@types"],
 
 	  "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
@@ -53,6 +51,6 @@
     "moduleDetection": "force",
     "skipLibCheck": true,
   },
-  "include" : ["src/**/*.ts"],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "@types/**/*.d.ts"],
   "exclude": ["node_modules", "**/*.spec.ts"]
 }

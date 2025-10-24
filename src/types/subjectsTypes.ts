@@ -1,11 +1,12 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 import { Repository, Query} from "./reporsitoryTypes";
 
 export interface Subject extends Document {
     name: string;
     educationLevel: 'Primary' | 'Secundary' | 'high school' | 'University' | 'Postgraduate';
-    Description?: string;
+    description?: string;
     price: number;
+    tutorId: Types.ObjectId;
 }
 
 export interface ISubjectRepository extends Repository<Subject> {

@@ -4,8 +4,6 @@ import { Repository, Query} from "./reporsitoryTypes";
 
 export interface Payments extends Document {
     bookingId: Types.ObjectId;
-    tutorId: Types.ObjectId;
-    studentId: Types.ObjectId;
     method: "card" | "bank_transfer" | "paypal";
     status: "pending" | "paid" | "failed";
     date: Date;

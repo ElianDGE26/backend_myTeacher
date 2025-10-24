@@ -12,6 +12,7 @@ const subjectService: ISubjectService = new SubjectService(subjectRepository);
 export const getAllSubjects = async (req: Request, res: Response) => {
     try {
 
+        console.log('req :>> ', req.currentUser);
         const result =  await subjectService.findAllSubjects();
 
         if (result.length === 0) {

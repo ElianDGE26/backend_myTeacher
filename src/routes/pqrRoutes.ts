@@ -1,21 +1,21 @@
 import { Router } from "express";
 import { createPqr, getAllPqrs, getPqrByid, updatePqrByid, deletePqrByid} from "../controllers/pqrControllers";
-
+import { verifyToken } from "../middelwears/authMiddelwears";
 const router = Router();
 
 
 //Rutas Get
-router.get("/", getAllPqrs);
-router.get("/:id", getPqrByid);
+router.get("/", verifyToken, getAllPqrs);
+router.get("/:id", verifyToken, getPqrByid);
 
 //Rutas Post
-router.post("/create", createPqr);
+router.post("/create", verifyToken, createPqr);
 
 //Rutas Put
-router.put("/update/:id", updatePqrByid);
+router.put("/update/:id",verifyToken,  updatePqrByid);
 
 //Rutas Delete
-router.delete("/delete/:id", deletePqrByid);
+router.delete("/delete/:id", verifyToken, deletePqrByid);
 
 
 export default router;

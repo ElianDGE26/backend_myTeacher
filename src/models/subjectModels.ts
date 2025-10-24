@@ -10,8 +10,9 @@ const SubjectSchema: Schema = new Schema<Subject>(
   {
     name: { type: String, required: true },
     educationLevel: { type: String, required: true },
-    Description: { type: String, required: false },
-    price: { type: Number, required: true }
+    description: { type: String, required: false },
+    price: { type: Number, required: true },
+    tutorId: { type: Schema.Types.ObjectId, required: true}
   },
   {
     timestamps: true,
@@ -22,8 +23,9 @@ const SubjectSchema: Schema = new Schema<Subject>(
           _id: ret._id,
           name: ret.name,
           educationLevel: ret.educationLevel,
-          Description: ret.Description,
-          price: ret.price
+          description: ret.description,
+          price: ret.price,
+          tutor: ret.tutorId
         };
       }
     }

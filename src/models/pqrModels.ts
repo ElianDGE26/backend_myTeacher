@@ -40,14 +40,6 @@ const PqrSchema: Schema = new Schema<Pqr>(
 );
 
 
-/* SubjectSchema.methods.toJSON = function() {
-  const object = this.toObject();
-  delete object.password;
-  return object;
-} */
-
-
-
 export const PqrModel = mongoose.model<Pqr>(COLLECTION_NAME, PqrSchema);
 
 

@@ -59,15 +59,6 @@ const AvailabilitySchema: Schema = new Schema<Availability>(
   }
 );
 
-
-/* SubjectSchema.methods.toJSON = function() {
-  const object = this.toObject();
-  delete object.password;
-  return object;
-} */
-
-
-
 export const AvailabilityModel = mongoose.model<Availability>(COLLECTION_NAME, AvailabilitySchema);
 
 

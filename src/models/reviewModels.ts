@@ -40,15 +40,6 @@ const ReviewSchema: Schema = new Schema<Review>(
   }
 );
 
-
-/* SubjectSchema.methods.toJSON = function() {
-  const object = this.toObject();
-  delete object.password;
-  return object;
-} */
-
-
-
 export const ReviewModel = mongoose.model<Review>(COLLECTION_NAME, ReviewSchema);
 
 

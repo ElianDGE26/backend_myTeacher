@@ -33,11 +33,6 @@ const SubjectSchema: Schema = new Schema<Subject>(
 );
 
 
-/* SubjectSchema.methods.toJSON = function() {
-  const object = this.toObject();
-  delete object.password;
-  return object;
-} */
 
 
 

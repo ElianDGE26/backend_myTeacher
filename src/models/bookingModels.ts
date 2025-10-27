@@ -83,14 +83,6 @@ const BookingSchema: Schema = new Schema<Booking>(
 );
 
 
-/* SubjectSchema.methods.toJSON = function() {
-  const object = this.toObject();
-  delete object.password;
-  return object;
-} */
-
-
-
 export const BookingModel = mongoose.model<Booking>(COLLECTION_NAME, BookingSchema);
 
 

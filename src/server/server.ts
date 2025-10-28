@@ -8,27 +8,39 @@ import availabilityRoutes from "../routes/availabilityRoutes";
 import bookingRoutes from "../routes/bookingRoutes";
 import paymentsRoutes from "../routes/paymentsRoutes";
 import reviewRoutes from "../routes/reviewRoutes";
+import cors from 'cors';
 
 
 class Server {
     private app: express.Application;
     private port: string;
+    private frontendUrlDev: string;
+    private frontendUrlProd: string;
 
     constructor() {
         this.app = express();
-
-        const p = config.port || '3000';
-        this.port = p;
+        this.port = config.port || '3000';
+        this.frontendUrlDev = config.frontendUrlDev;
+        this.frontendUrlProd = config.frontendUrlProd;
         
+        // configurción de BDD y rutas
         connectionDb();
         this.middlewares();
-        this.routes(); 
+        this.routes();
     }
 
 
     middlewares() {// middlewares generales
         //parseo del body
         this.app.use(express.json());
+        
+        //Configuración de CORS
+        this.app.use(cors({
+            origin: [this.frontendUrlDev, this.frontendUrlProd],
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            credentials: true,
+            allowedHeaders: ['content-type', 'authorization', 'accept', 'x-access-token']
+        }));
     }
 
     listen() {

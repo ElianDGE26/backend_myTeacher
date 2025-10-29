@@ -35,6 +35,13 @@ class Server {
         this.app.use(express.json());
         
         //Configuración de CORS
+        this.app.options('*', cors({
+            origin: [this.frontendUrlDev, this.frontendUrlProd],
+            methods: ['GET', 'POST', 'PUT', 'DELETE'],
+            credentials: true,
+            allowedHeaders: ['content-type', 'authorization', 'accept', 'x-access-token']
+        }));
+
         this.app.use(cors({
             origin: [this.frontendUrlDev, this.frontendUrlProd],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],

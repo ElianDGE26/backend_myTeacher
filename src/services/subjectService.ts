@@ -27,5 +27,9 @@ export class SubjectService implements ISubjectService {
 
     async deleteSubjectById (id: string): Promise<boolean> {
         return this.subjectRepository.delete(id);
-    }  
+    }
+
+    async findTeachersBySubject (query?: Query): Promise<Subject[]> {
+        return this.subjectRepository.findTeachersBySubject(query);
+    }
 }

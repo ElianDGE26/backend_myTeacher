@@ -109,3 +109,26 @@ export const deleteSubjectByid = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const findUserBySubjectName = async (req: Request, res: Response) => {
+    try {
+
+        const { subjectName } = req.params;
+
+        if (!subjectName){
+            return res.status(400).json({ message: "Missing subject name in params"});
+        }
+
+        const result = await subjectService.findTeachersBySubject({ name: subjectName });
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "No subjects found with the given name"});
+        }
+
+        res.json(result);
+        
+    } catch (error) {
+        console.log('Error obteniendo los usuarios por codigo de materias :>> ', error);
+        res.status(500).json({ message: "Internal server error"})
+    }
+}

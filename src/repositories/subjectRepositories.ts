@@ -33,4 +33,26 @@ export class SubjectRepository implements ISubjectRepository{
     }
 
 
+    async findTeachersBySubject(query?: Query): Promise<any[]> {
+        const allSubjects = await this.SubjectModel.find().populate('tutorId', '-_id -password');
+
+        const filtered = allSubjects.filter(s =>
+            s.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+            .includes(subjectName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())
+        );
+
+        return filtered;
+
+    }
+
+    
+
+
+}
+
+function normalizeString(str: string): string {
+    return str
+        .normalize("NFD")            // descompone acentos
+        .replace(/[\u0300-\u036f]/g, "") // elimina marcas diacríticas
+        .toLowerCase();
 }

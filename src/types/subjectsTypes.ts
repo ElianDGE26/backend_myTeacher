@@ -11,6 +11,7 @@ export interface Subject extends Document {
 
 export interface ISubjectRepository extends Repository<Subject> {
     findOne(query: Query): Promise<Subject | null>;
+    findTeachersBySubject(query?: Query): Promise<Subject[]>;
 }
 
 export interface ISubjectService {
@@ -19,4 +20,5 @@ export interface ISubjectService {
     findSubjectById(id: string): Promise<Subject | null>;
     updateSubjectById(id: string, subject: Partial<Subject>): Promise<Subject | null>;
     deleteSubjectById(id: string): Promise<boolean>;
+    findTeachersBySubject(query?: Query): Promise<Subject[]>;
 }   

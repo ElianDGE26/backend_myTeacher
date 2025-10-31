@@ -12,7 +12,7 @@ const SubjectSchema: Schema = new Schema<Subject>(
     educationLevel: { type: String, required: true },
     description: { type: String, required: false },
     price: { type: Number, required: true },
-    tutorId: { type: Schema.Types.ObjectId, required: true}
+    tutorId: { type: Schema.Types.ObjectId, ref: MODEL_NAMES.USER,required: true}
   },
   {
     timestamps: true,
@@ -25,7 +25,7 @@ const SubjectSchema: Schema = new Schema<Subject>(
           educationLevel: ret.educationLevel,
           description: ret.description,
           price: ret.price,
-          tutor: ret.tutorId
+          tutorId: ret.tutorId
         };
       }
     }

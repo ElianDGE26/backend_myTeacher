@@ -34,20 +34,27 @@ export class SubjectRepository implements ISubjectRepository{
 
 
     async findTeachersBySubject(query?: Query): Promise<any[]> {
-        const allSubjects = await this.SubjectModel.find().populate('tutorId', '-_id -password');
 
-        const filtered = allSubjects.filter(s =>
+        let subjectName = (query?.name as string) || "";
+        subjectName = subjectName.trim().replace(/^:/, "");
+
+        // Normalizamos la palabra a buscar (quitamos tildes y pasamos a minúsculas)
+        const normalized = subjectName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+        console.log('query :>> ', normalized);
+        const allSubjects = await SubjectModel.find().populate('tutorId', '-_id -password');
+
+
+        const filtered = allSubjects.filter(s => 
             s.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
-            .includes(subjectName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase())
+            .includes(normalized)
         );
+
+        console.log('filtered :>> ', filtered);
 
         return filtered;
 
     }
-
-    
-
-
 }
 
 function normalizeString(str: string): string {

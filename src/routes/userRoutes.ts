@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { createUser, getAllUsers, getUserByid, updateUserByid, deleteUserByid} from "../controllers/userControllers";
-import { loginUser, registerUSer } from "../controllers/auth/authControllers";
+import { loginUser, registerUSer, changePassword } from "../controllers/auth/authControllers";
 import { verifyToken } from "../middelwears/authMiddelwears";
 
 const router = Router();
@@ -17,6 +17,7 @@ router.post("/auth/login", loginUser)
 
 //Rutas Put
 router.put("/update/:id", verifyToken, updateUserByid);
+router.put("/auth/change-password", changePassword)
 
 //Rutas Delete
 router.delete("/delete/:id", verifyToken,deleteUserByid);

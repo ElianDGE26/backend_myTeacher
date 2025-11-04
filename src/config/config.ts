@@ -37,4 +37,5 @@ export const MODEL_NAMES = {
   BOOKINGS: "bookings",
   REVIEWS: "reviews",
   AVAILABILITIES: "availabilities",
+  SESSIONS: "sessions"
 };

@@ -74,10 +74,15 @@ export const updateUserByid = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Missing user ID in params" });
         }
 
-        const result =  await userService.updateUserById(id, userUpdate);
+        const userExist = await userService.findUserById(id);
 
-        if (!result) {
-            return res.status(404).json({ message: "User not found" });
+        if (!userExist) {
+            return res.status(404).json({ message: "User not found"});
+        }
+
+        const result =  await userService.updateUserById(id, userUpdate);
+        if (!result){
+            return res.status(500).json({ message: "error updating user"});
         }
 
         res.json(result);

@@ -3,12 +3,13 @@ import { Session } from "../types/sessionTypes";
 import { MODEL_NAMES } from "../config/config";
 
 const COLLECTION_NAME: string = MODEL_NAMES.SESSIONS;
+const COLLECTION_USER: string = MODEL_NAMES.USER;
 
 const SessionSchema: Schema = new Schema<Session>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: COLLECTION_NAME,
+      ref: COLLECTION_USER,
       required: true,
     },
     accessToken: { type: String, required: true },

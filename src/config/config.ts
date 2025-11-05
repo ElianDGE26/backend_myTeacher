@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { PORT, MONGODB_URL, JWT_SECRET, FRONTEND_URL_DEV, FRONTEND_URL_PROD } = process.env;
+const { PORT, MONGODB_URL, JWT_SECRET, FRONTEND_URL_DEV, FRONTEND_URL_PROD, JWT_SECRET_REFRESH_TOKEN } = process.env;
 
 if (!PORT) {
   throw new Error('PORT is not defined');
@@ -19,11 +19,16 @@ if (!FRONTEND_URL_DEV) {
 if (!FRONTEND_URL_PROD) {
   throw new Error('FRONTEND_URL_PROD is not defined');
 }
+if (!JWT_SECRET_REFRESH_TOKEN) {
+  throw new Error('JWT_SECRET_REFRESH_TOKEN is not defined');
+}
+
 
 export default {
   port: PORT,
   mongodbUrl: MONGODB_URL,
-  jwtSecret: JWT_SECRET || 'mysecret',
+  jwtSecret: JWT_SECRET || 'mysecretPass0w0rd12354784llsds657493',
+  jwtSecretRefreshToken: JWT_SECRET_REFRESH_TOKEN || '3ste2sUnP@assw0rd951357846254',
   frontendUrlDev: FRONTEND_URL_DEV,
   frontendUrlProd: FRONTEND_URL_PROD, 
 };

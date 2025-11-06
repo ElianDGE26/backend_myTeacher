@@ -135,9 +135,9 @@ export const findUserBySubjectName = async (req: Request, res: Response) => {
 
 export const findSubjectByTutorId = async (req: Request, res: Response) => {
     try {
-        console.log("tutorId recibido:", req.body.tutorId);
+        console.log("tutorId recibido:", req.params);
 
-        const { tutorId } = req.body;
+        const { tutorId } = req.params;
 
         if(!tutorId) {
             return res.status(400).json({ message: "Missing tutorId in request body"});

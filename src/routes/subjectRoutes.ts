@@ -8,7 +8,7 @@ const router = Router();
 
 //Rutas Get
 router.get("/UserSubjects/:subjectName", verifyToken, findUserBySubjectName);
-router.get("/subjectsBytutorId", verifyToken, findSubjectByTutorId);
+router.get("/subjectsBytutorId/:tutorId", verifyToken, findSubjectByTutorId);
 router.get("/", verifyToken ,getAllSubjects);
 router.get("/:id",verifyToken, getSubjectByid);
 

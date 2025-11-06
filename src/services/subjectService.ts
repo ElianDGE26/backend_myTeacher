@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Query } from "../types/reporsitoryTypes";
 import { ISubjectRepository, ISubjectService, Subject } from "../types/subjectsTypes";
 
@@ -33,7 +34,7 @@ export class SubjectService implements ISubjectService {
         return this.subjectRepository.findTeachersBySubject(query);
     }
 
-    async findSubjectsByTutorId(tutorId: string): Promise<Subject[]> {
+    async findSubjectsByTutorId(tutorId: Types.ObjectId): Promise<Subject[]> {
         return this.subjectRepository.findAll({ tutorId });
     }
 }

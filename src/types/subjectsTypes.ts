@@ -21,5 +21,5 @@ export interface ISubjectService {
     updateSubjectById(id: string, subject: Partial<Subject>): Promise<Subject | null>;
     deleteSubjectById(id: string): Promise<boolean>;
     findTeachersBySubject(query?: Query): Promise<Subject[]>;
-    findSubjectsByTutorId(tutorId: string): Promise<Subject[]>;
+    findSubjectsByTutorId(tutorId: Types.ObjectId): Promise<Subject[]>;
 }   

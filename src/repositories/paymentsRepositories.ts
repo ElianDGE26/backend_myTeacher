@@ -1,6 +1,8 @@
 import { PaymentModel } from "../models/paymentsModels";
+import { BookingModel } from "../models/bookingModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IPaymentsRepository, Payments } from "../types/paymentsTypes";
+import { Types } from "mongoose";
 
 
 export class PaymentsRepository implements IPaymentsRepository{
@@ -31,6 +33,21 @@ export class PaymentsRepository implements IPaymentsRepository{
     async findOne (query: Query): Promise<Payments | null> {
         return await PaymentModel.findOne(query).exec();
     }
+
+    async totalIncomeBytutor(tutorId: Types.ObjectId): Promise<number> {
+        const resultBooking = await BookingModel.find({ tutorId}).select("_id").exec();
+        const bookingIds = resultBooking.map(booking => booking._id);
+
+        const result = await PaymentModel.aggregate([
+            { $match: { bookingId: { $in: bookingIds}, status: "paid"}},
+            { $group: { _id: null, total: { $sum: "$amount"}}}
+        ]);
+
+        return result[0]?.total || 0;
+    }
+
+
+
 
 
 }

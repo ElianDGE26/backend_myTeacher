@@ -1,10 +1,14 @@
 import { IPaymentsRepository, IPaymentsService, Payments } from "../types/paymentsTypes";
+import { IBookingRepository, IBookingService, Booking } from "../types/bookingsTypes";
 import { PaymentsRepository } from "../repositories/paymentsRepositories";
+import { BookingRepository } from "../repositories/bookingRepositories";
 import { PaymentsService } from "../services/paymentsService";
 import { Request, Response } from "express";
+import { Types } from "mongoose";
 
 const paymentRepository: IPaymentsRepository = new PaymentsRepository();
-const paymentService: IPaymentsService = new PaymentsService(paymentRepository);
+const bookingRepository: IBookingRepository = new BookingRepository();
+const paymentService: IPaymentsService = new PaymentsService(paymentRepository, bookingRepository);
 
 
 
@@ -105,5 +109,24 @@ export const deletePaymentByid = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error fetching Payments:", error);
         res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+export const getStats = async (req: Request, res: Response) => {
+    try {
+      const { tutorId } = req.params;
+
+      if (!tutorId){
+        return res.status(400).json({ message: "Missing tutor ID in params" });
+      }
+      const stats = await paymentService.totalTutorsStats(tutorId as unknown as Types.ObjectId);
+
+      res.status(200).json({
+        message: "Teacher statistics retrieved successfully",
+        data: stats
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Error retrieving statistics" });
     }
 }

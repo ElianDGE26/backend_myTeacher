@@ -18,6 +18,8 @@ export interface Booking extends Document {
 
 export interface IBookingRepository extends Repository<Booking> {
     findOne(query: Query): Promise<Booking | null>;
+    countByDocuments(query: Query): Promise<number>;
+    recuentStudentsBookings(tutorId:Types.ObjectId): Promise<number>;
 }
 
 export interface IBookingService { 
@@ -26,4 +28,7 @@ export interface IBookingService {
     findBookingById(id: string): Promise<Booking | null>;
     updateBookingById(id: string, booking: Partial<Booking>): Promise<Booking | null>;
     deleteBookingById(id: string): Promise<boolean>;
+    countBookingsBystatus(tutorId: Types.ObjectId, status: string): Promise<number>;
+    recuentStudentsBookings(tutorId:Types.ObjectId): Promise<number>;
+    
 }

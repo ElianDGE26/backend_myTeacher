@@ -62,9 +62,9 @@ class Server {
         this.app.use('/api/subjects', subjectRoutes);
         this.app.use('/api/pqrs', pqrRoutes);
         this.app.use('/api/availabilities', availabilityRoutes);
-        this.app.use('/api/bookings', bookingRoutes);
         this.app.use('/api/reviews', reviewRoutes);
         this.app.use('/api/payments', paymentsRoutes);
+        this.app.use('/api/bookings', bookingRoutes);
     }
 }
 

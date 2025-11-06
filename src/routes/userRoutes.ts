@@ -11,7 +11,7 @@ router.get("/", verifyToken, getAllUsers);
 router.get("/:id", verifyToken, getUserByid);
 
 //Rutas Post
-router.post("/create", verifyToken, createUser);
+router.post("/create", createUser);
 router.post("/auth/register", registerUSer)
 router.post("/auth/login", loginUser);
 router.post("auth/logout", logoutUser);

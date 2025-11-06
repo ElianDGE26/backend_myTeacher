@@ -32,7 +32,6 @@ export class SubjectRepository implements ISubjectRepository{
         return await SubjectModel.findOne(query).exec();
     }
 
-
     async findTeachersBySubject(query?: Query): Promise<any[]> {
 
         let subjectName = (query?.name as string) || "";
@@ -55,6 +54,7 @@ export class SubjectRepository implements ISubjectRepository{
         return filtered;
 
     }
+
 }
 
 function normalizeString(str: string): string {

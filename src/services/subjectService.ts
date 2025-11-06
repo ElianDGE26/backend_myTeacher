@@ -32,4 +32,8 @@ export class SubjectService implements ISubjectService {
     async findTeachersBySubject (query?: Query): Promise<Subject[]> {
         return this.subjectRepository.findTeachersBySubject(query);
     }
+
+    async findSubjectsByTutorId(tutorId: string): Promise<Subject[]> {
+        return this.subjectRepository.findAll({ tutorId });
+    }
 }

@@ -9,8 +9,8 @@ const COLLECTION_NAME: string = MODEL_NAMES.SUBJECT;
 const SubjectSchema: Schema = new Schema<Subject>(
   {
     name: { type: String, required: true },
-    educationLevel: { type: String, required: true },
-    description: { type: String, required: false },
+    educationLevel: { type: String, enum: ["Primary", "Secundary", "University", "Postgraduate"], required: true },
+    description: { type: String, required: true },
     price: { type: Number, required: true },
     tutorId: { type: Schema.Types.ObjectId, ref: MODEL_NAMES.USER,required: true}
   },

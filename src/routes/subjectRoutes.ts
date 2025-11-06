@@ -1,15 +1,17 @@
 import { Router } from "express";
-import { createSubject, getAllSubjects, getSubjectByid, updateSubjectByid, deleteSubjectByid, findUserBySubjectName} from "../controllers/subjectControllers";
+import { createSubject, getAllSubjects, getSubjectByid, updateSubjectByid, deleteSubjectByid, findUserBySubjectName, findSubjectByTutorId} from "../controllers/subjectControllers";
 import { verifyToken } from "../middelwears/authMiddelwears";
 
 
 const router = Router();
 
 
-//Rutas Get 
+//Rutas Get
+router.get("/UserSubjects/:subjectName", verifyToken, findUserBySubjectName);
+router.get("/subjectsBytutorId", verifyToken, findSubjectByTutorId);
 router.get("/", verifyToken ,getAllSubjects);
 router.get("/:id",verifyToken, getSubjectByid);
-router.get("/UserSubjects/:subjectName", verifyToken, findUserBySubjectName);
+
 
 //Rutas Post
 router.post("/create",verifyToken, createSubject);

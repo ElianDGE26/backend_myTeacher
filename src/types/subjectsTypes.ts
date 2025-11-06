@@ -3,7 +3,7 @@ import { Repository, Query} from "./reporsitoryTypes";
 
 export interface Subject extends Document {
     name: string;
-    educationLevel: 'Primary' | 'Secundary' | 'high school' | 'University' | 'Postgraduate';
+    educationLevel: 'Primary' | 'Secundary' | 'University' | 'Postgraduate';
     description?: string;
     price: number;
     tutorId: Types.ObjectId;
@@ -11,7 +11,7 @@ export interface Subject extends Document {
 
 export interface ISubjectRepository extends Repository<Subject> {
     findOne(query: Query): Promise<Subject | null>;
-    findTeachersBySubject(query?: Query): Promise<Subject[]>;
+    findTeachersBySubject(query?: Query): Promise<Subject[]>; 
 }
 
 export interface ISubjectService {
@@ -21,4 +21,5 @@ export interface ISubjectService {
     updateSubjectById(id: string, subject: Partial<Subject>): Promise<Subject | null>;
     deleteSubjectById(id: string): Promise<boolean>;
     findTeachersBySubject(query?: Query): Promise<Subject[]>;
+    findSubjectsByTutorId(tutorId: string): Promise<Subject[]>;
 }   

@@ -132,3 +132,28 @@ export const findUserBySubjectName = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error"})
     }
 }
+
+export const findSubjectByTutorId = async (req: Request, res: Response) => {
+    try {
+        console.log("tutorId recibido:", req.body.tutorId);
+
+        const { tutorId } = req.body;
+
+        if(!tutorId) {
+            return res.status(400).json({ message: "Missing tutorId in request body"});
+        }
+
+        const result = await subjectService.findAllSubjects({ tutorId});
+
+        if (result.length === 0) {
+            return res.status(404).json({ message: "No subjects found for the given tutorId"});
+        }
+
+        res.json(result);
+
+
+    } catch (error) {
+        console.error("Error fetching Subjects by tutorId:", error);
+        res.status(500).json({ message: "Internal Server Error"})
+    }
+}

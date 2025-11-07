@@ -10,12 +10,12 @@ export class BookingService implements IBookingService {
     constructor(bookingRepository: IBookingRepository) {
         this.bookingRepository = bookingRepository;
     }
-    async countBookingsBystatus(tutorId: Types.ObjectId, status: string): Promise<number> {
-        return this.bookingRepository.countByDocuments({ tutorId, status});
+    async countBookingsBystatus(tutorId: Types.ObjectId, status: string, date: Date): Promise<number> {
+        return this.bookingRepository.countByDocuments({ tutorId, status, date});
     }
 
-    async recuentStudentsBookings(tutorId: Types.ObjectId): Promise<number> {
-        return this.bookingRepository.recuentStudentsBookings(tutorId);
+    async recuentStudentsBookings(query: Query): Promise<number> {
+        return this.bookingRepository.recuentStudentsBookings( query );
     }
 
     async createBooking (booking: Booking): Promise<Booking> {

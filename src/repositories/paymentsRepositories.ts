@@ -34,8 +34,11 @@ export class PaymentsRepository implements IPaymentsRepository{
         return await PaymentModel.findOne(query).exec();
     }
 
-    async totalIncomeBytutor(tutorId: Types.ObjectId): Promise<number> {
-        const resultBooking = await BookingModel.find({ tutorId}).select("_id").exec();
+    async totalIncomeByTutor(query: Query): Promise<number> {
+        const tutorId = query.tutorId;
+        const datefilter = query.date;
+
+        const resultBooking = await BookingModel.find({ tutorId: tutorId, date: datefilter}).select("_id").exec();
         const bookingIds = resultBooking.map(booking => booking._id);
 
         const result = await PaymentModel.aggregate([

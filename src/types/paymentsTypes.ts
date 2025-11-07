@@ -13,7 +13,7 @@ export interface Payments extends Document {
 
 export interface IPaymentsRepository extends Repository<Payments> {
     findOne(query: Query): Promise<Payments | null>;
-    totalIncomeBytutor(tutorId: Types.ObjectId): Promise<number>;
+    totalIncomeByTutor(query: Query): Promise<number>;
 }
 
 export interface IPaymentsService { 
@@ -27,5 +27,9 @@ export interface IPaymentsService {
     income: number;
     canceledClasses: number;
     pendingRequests: number;
+    studentsLastPerium: number;
+    incomeLastPerium: number;
+    canceledClassesLastPerium: number;
+    pendingRequestsLastPerium: number;
 }>
 }

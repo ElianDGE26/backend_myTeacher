@@ -6,16 +6,6 @@ import { Types } from "mongoose";
 
 export class BookingRepository implements IBookingRepository{
 
-
-    async countByDocuments(query: Query): Promise<number> {
-        return await BookingModel.countDocuments(query).exec();
-    }
-
-    async recuentStudentsBookings(tutorId: Types.ObjectId): Promise<number> {
-        const students = await BookingModel.distinct("studentId", { tutorId, status: "completed"}); 
-        return students.length; 
-    }
-
     async create(data: Booking): Promise<Booking> {
         const newBooking = new BookingModel(data);
         return await newBooking.save();
@@ -40,6 +30,18 @@ export class BookingRepository implements IBookingRepository{
 
     async findOne (query: Query): Promise<Booking | null> {
         return await BookingModel.findOne(query).exec();
+    }
+
+
+    async countByDocuments(query: Query): Promise<number> {
+        return await BookingModel.countDocuments(query).exec();
+    }
+
+    async recuentStudentsBookings(query: Query): Promise<number> {
+        const Idtutor = query.tutorId;
+        const datefilter = query.date;
+        const students = await BookingModel.distinct( "studentId", { tutorId: Idtutor, status: "completed", date: datefilter} ); 
+        return students.length; 
     }
 
 

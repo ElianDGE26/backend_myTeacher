@@ -107,3 +107,25 @@ export const deleteBookingByid = async (req: Request, res: Response) => {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+
+export const bookingsByStudentsId = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+        console.log('userId :>> ', userId);
+        
+        if (!userId){
+            return res.status(400).json( { message: "Missing user ID in params" } );
+        }
+
+        const resutlt = await bookingService.findAllBookings({ studentId: userId});
+
+        if( !resutlt || resutlt.length === 0 ){
+            return  res.status(404).json( { message: "No bookings found for the given student ID"} );
+        }
+
+        res.json(resutlt);
+    } catch (error) {
+        console.log('error find bookings by students id:>> ', error);
+        res.status(500).json( { message: "Internat server Error"} );
+    }
+}

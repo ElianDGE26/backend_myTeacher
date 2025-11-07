@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createBooking, getAllBookings, getBookingByid, updateBookingByid, deleteBookingByid} from "../controllers/bookingControllers";
+import { createBooking, getAllBookings, getBookingByid, updateBookingByid, deleteBookingByid, bookingsByStudentsId} from "../controllers/bookingControllers";
 import { verifyToken } from "../middelwears/authMiddelwears";
 const router = Router();
 
@@ -7,6 +7,7 @@ const router = Router();
 //Rutas Get
 router.get("/", verifyToken, getAllBookings);
 router.get("/:id", verifyToken, getBookingByid);
+router.get("/count/student-bookings/:userId", verifyToken, bookingsByStudentsId);
 
 //Rutas Post
 router.post("/create", verifyToken, createBooking);

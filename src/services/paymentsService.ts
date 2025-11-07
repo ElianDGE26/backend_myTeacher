@@ -30,6 +30,10 @@ export class PaymentsService implements IPaymentsService {
     incomeLastPerium: number;
     canceledClassesLastPerium: number;
     pendingRequestsLastPerium: number;
+    diferenceIncomePercentage: number;
+    diferenceStudents: number;
+    diferenceCanceledClasses: number;
+    diferencePendingRequests: number;
   }> {
 
     const today = new Date(2025,10,30);
@@ -57,9 +61,15 @@ export class PaymentsService implements IPaymentsService {
         this.getStatsForPeriod(tutorId, startOfPreviousMonth, endOfPreviousMonth),
       ]);
 
+      const diferenceIncomePercentage = Math.round(incomeLastPerium === 0 ? 100 : ((income - incomeLastPerium) / incomeLastPerium) * 100);
+      const diferenceStudents = students - studentsLastPerium;
+      const diferenceCanceledClasses = canceledClasses - canceledClassesLastPerium;
+      const diferencePendingRequests = pendingRequests - pendingRequestsLastPerium;
+
     return {
       students, income, canceledClasses, pendingRequests,
-      studentsLastPerium, incomeLastPerium, canceledClassesLastPerium, pendingRequestsLastPerium
+      studentsLastPerium, incomeLastPerium, canceledClassesLastPerium, pendingRequestsLastPerium,
+      diferenceIncomePercentage, diferenceStudents, diferenceCanceledClasses, diferencePendingRequests
     };
   }
 

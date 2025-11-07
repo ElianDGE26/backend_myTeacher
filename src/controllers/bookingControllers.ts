@@ -129,3 +129,25 @@ export const bookingsByStudentsId = async (req: Request, res: Response) => {
         res.status(500).json( { message: "Internat server Error"} );
     }
 }
+
+export const bookingsByTutorId = async (req: Request, res: Response) => {
+    try {
+        const { userId } = req.params;
+        console.log('userId :>> ', userId);
+        
+        if (!userId){
+            return res.status(400).json( { message: "Missing user ID in params" } );
+        }
+
+        const resutlt = await bookingService.findAllBookings({ tutorId: userId});
+
+        if( !resutlt || resutlt.length === 0 ){
+            return  res.status(404).json( { message: "No bookings found for the given tutor ID"} );
+        }
+
+        res.json(resutlt);
+    } catch (error) {
+        console.log('error find bookings by tutor id:>> ', error);
+        res.status(500).json( { message: "Internat server Error"} );
+    }
+}

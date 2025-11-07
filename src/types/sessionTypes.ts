@@ -20,7 +20,6 @@ export interface ISessionService {
     findAllSessions(query?: Query): Promise<Session[]>;
     deleteSessionById(id: string): Promise<boolean>;
     findSessionByRefreshToken(refreshToken: string): Promise<Session | null>;
-    findSessionByUserId(userId: Types.ObjectId): Promise<Session[]>;
     deleteSessionByRefreshToken(refreshToken: string): Promise<boolean>;
     deleteSessionByUserId(userId: Types.ObjectId): Promise<boolean>;
 }

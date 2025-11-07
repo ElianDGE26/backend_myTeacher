@@ -23,15 +23,18 @@ export class SessionRepository implements ISessionRepository {
         return await SessionModel.findByIdAndUpdate(id, item, { new:true}).exec();
     }
     async delete(id: string): Promise<boolean> {
-        return await SessionModel.findByIdAndDelete(id).exec().then(result => result ? true : false);
+        const result  =  await SessionModel.findByIdAndDelete(id).exec();
+        return result ? true: false;
     }
 
     async deleteByRefreshToken(query: Query): Promise<boolean> {
-        return await SessionModel.deleteOne(query).exec().then(result =>result ? true : false);
+        const result  = await SessionModel.deleteOne(query).exec();
+        return result.deletedCount > 0
     }
     
     async deleteByUserId(userId: Types.ObjectId): Promise<boolean> {
-        return await SessionModel.deleteMany( { userId }).exec().then(result =>result ? true : false);
+        const result  = await SessionModel.deleteMany( { userId }).exec();
+        return result.deletedCount > 0
     }
     
 

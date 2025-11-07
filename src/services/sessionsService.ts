@@ -39,10 +39,6 @@ export class SessionService implements ISessionService {
     findSessionByRefreshToken(refreshToken: string): Promise<Session | null> {
         return this.sessionRepository.findOne({ refreshToken})
     }
-    
-    findSessionByUserId(userId: Types.ObjectId): Promise<Session[]> {
-        return this.sessionRepository.findAll({ userId });
-    }
     deleteSessionByRefreshToken(refreshToken: string): Promise<boolean> {
         return this.sessionRepository.deleteByRefreshToken({ refreshToken} );
     }

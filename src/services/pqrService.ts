@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { IPqrRepository, IPqrService, Pqr } from "../types/pqrTypes";
 import { Query } from "../types/reporsitoryTypes";
 
@@ -17,15 +18,15 @@ export class PqrService implements IPqrService {
         return this.pqrRepository.findAll(query);
     }
 
-    async findPqrById (id: string): Promise<Pqr | null> {
+    async findPqrById (id: Types.ObjectId): Promise<Pqr | null> {
         return this.pqrRepository.findById(id);
     }
 
-    async updatePqrById (id: string, pqr: Partial<Pqr>): Promise<Pqr | null> {
+    async updatePqrById (id: Types.ObjectId, pqr: Partial<Pqr>): Promise<Pqr | null> {
         return this.pqrRepository.update(id, pqr);
     }   
 
-    async deletePqrById (id: string): Promise<boolean> {
+    async deletePqrById (id: Types.ObjectId): Promise<boolean> {
         return this.pqrRepository.delete(id);
     }  
 }

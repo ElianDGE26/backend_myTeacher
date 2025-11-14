@@ -1,6 +1,7 @@
 import { PqrModel } from "../models/pqrModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IPqrRepository, Pqr } from "../types/pqrTypes";
+import { Types } from "mongoose";
 
 
 export class PqrRepository implements IPqrRepository{
@@ -15,15 +16,15 @@ export class PqrRepository implements IPqrRepository{
         return await PqrModel.find(query || {}).exec();
     }   
 
-    async findById(id: string): Promise<Pqr | null> {
+    async findById(id: Types.ObjectId): Promise<Pqr | null> {
         return await PqrModel.findById(id).exec();
     }
 
-    async update(id: string, data: Partial<Pqr>): Promise<Pqr | null> {
+    async update(id: Types.ObjectId, data: Partial<Pqr>): Promise<Pqr | null> {
         return await PqrModel.findByIdAndUpdate(id, data, { new: true }).exec();
     }
 
-    async delete (id: string): Promise<boolean> {
+    async delete (id: Types.ObjectId): Promise<boolean> {
         const result = await PqrModel.findByIdAndDelete(id).exec();
         return result ? true : false;
     }

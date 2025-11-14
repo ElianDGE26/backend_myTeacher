@@ -27,8 +27,9 @@ export interface IUserRepository extends Repository<User> {
 export interface IUserService {
     createUser(user: User): Promise<User>;
     findAllUsers(query?: Query): Promise<User[]>;
-    findUserById(id: string): Promise<User | null>;
+    findUserById(id: Types.ObjectId): Promise<User | null>;
     findUserByEmail(email: string): Promise<User | null>;
-    updateUserById(id: string, user: Partial<User>): Promise<User | null>;
-    deleteUserById(id: string): Promise<boolean>;
+    updateUserById(id: Types.ObjectId, user: Partial<User>): Promise<User | null>;
+    deleteUserById(id: Types.ObjectId): Promise<boolean>;
+    
 }

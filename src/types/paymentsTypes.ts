@@ -19,9 +19,9 @@ export interface IPaymentsRepository extends Repository<Payments> {
 export interface IPaymentsService { 
     createPayment(payment: Payments): Promise<Payments>;
     findAllPayments(query?: Query): Promise<Payments[]>;
-    findPaymentById(id: string): Promise<Payments | null>;
-    updatePaymentById(id: string, payment: Partial<Payments>): Promise<Payments | null>;
-    deletePaymentById(id: string): Promise<boolean>;
+    findPaymentById(id: Types.ObjectId): Promise<Payments | null>;
+    updatePaymentById(id: Types.ObjectId, payment: Partial<Payments>): Promise<Payments | null>;
+    deletePaymentById(id: Types.ObjectId): Promise<boolean>;
     totalTutorsStats(tutorId: Types.ObjectId): Promise<{
     students: number;
     income: number;

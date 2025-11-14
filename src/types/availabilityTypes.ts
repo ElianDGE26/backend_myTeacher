@@ -19,7 +19,7 @@ export interface IAvailabilityRepository extends Repository<Availability> {
 export interface IAvailabilityService {
     createAvailability(availability: Availability): Promise<Availability>;
     findAllAvailabilities(query?: Query): Promise<Availability[]>;
-    findAvailabilityById(id: string): Promise<Availability | null>;
-    updateAvailabilityById(id: string, availability: Partial<Availability>): Promise<Availability | null>;
-    deleteAvailabilityById(id: string): Promise<boolean>;
+    findAvailabilityById(id: Types.ObjectId): Promise<Availability | null>;
+    updateAvailabilityById(id: Types.ObjectId, availability: Partial<Availability>): Promise<Availability | null>;
+    deleteAvailabilityById(id: Types.ObjectId): Promise<boolean>;
 }

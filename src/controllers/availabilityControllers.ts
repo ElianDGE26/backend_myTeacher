@@ -2,6 +2,7 @@ import { IAvailabilityRepository, IAvailabilityService, Availability } from "../
 import { AvailabilityRepository } from "../repositories/availabilityRepositories";
 import { AvailabilityService } from "../services/availabilityService";
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 
 const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
 const availabilityService: IAvailabilityService = new AvailabilityService(availabilityRepository);
@@ -32,8 +33,12 @@ export const getAvailabilityByid = async (req: Request, res: Response) => {
         if (!id) {
             return res.status(400).json({ message: "Missing Availability ID in params" });
         }
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+                    return res.status(404).json({ message: "Invalid Booking Id"})
+                }
         
-        const result =  await availabilityService.findAvailabilityById(id);
+        const result =  await availabilityService.findAvailabilityById(new mongoose.Types.ObjectId(id));
 
         if (!result) {
             return res.status(404).json({ message: "No Availability found" });
@@ -73,7 +78,11 @@ export const updateAvailabilityByid = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Missing Availability ID in params" });
         }
 
-        const result =  await availabilityService.updateAvailabilityById(id, availabilityUpdate);
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
+
+        const result =  await availabilityService.updateAvailabilityById(new mongoose.Types.ObjectId(id), availabilityUpdate);
 
         if (!result) {
             return res.status(404).json({ message: "Availability not found" });
@@ -95,7 +104,11 @@ export const deleteAvailabilityByid = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Missing Availability ID in params" });
         }
 
-        const result =  await availabilityService.deleteAvailabilityById(id);
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
+
+        const result =  await availabilityService.deleteAvailabilityById(new mongoose.Types.ObjectId(id));
 
         if (!result) {
             return res.status(404).json({ message: "Availability not found" });

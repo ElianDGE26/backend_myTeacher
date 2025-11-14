@@ -2,39 +2,58 @@ import { Types } from "mongoose";
 import { IBookingRepository, IBookingService, Booking } from "../types/bookingsTypes";
 import { Query } from "../types/reporsitoryTypes";
 import { BookingRepository } from "../repositories/bookingRepositories";
+import { IUserRepository } from "../types/usersTypes";
+import { error } from "console";
 
 
 export class BookingService implements IBookingService {
     private bookingRepository: IBookingRepository;
+    private userRepository: IUserRepository;
 
-    constructor(bookingRepository: IBookingRepository) {
+    constructor(bookingRepository: IBookingRepository, userRepository: IUserRepository) {
         this.bookingRepository = bookingRepository;
+        this.userRepository = userRepository;
     }
+
     async countBookingsBystatus(tutorId: Types.ObjectId, status: string, date: Date): Promise<number> {
-        return this.bookingRepository.countByDocuments({ tutorId, status, date});
+        return await this.bookingRepository.countByDocuments({ tutorId, status, date});
     }
 
     async recuentStudentsBookings(query: Query): Promise<number> {
-        return this.bookingRepository.recuentStudentsBookings( query );
+        return await this.bookingRepository.recuentStudentsBookings( query );
     }
 
     async createBooking (booking: Booking): Promise<Booking> {
-        return this.bookingRepository.create(booking);
+        return await this.bookingRepository.create(booking);
     }
 
     async findAllBookings (query?: Query): Promise<Booking[]> {
-        return this.bookingRepository.findAll(query);
+        return await this.bookingRepository.findAll(query);
     }
 
-    async findBookingById (id: string): Promise<Booking | null> {
-        return this.bookingRepository.findById(id);
+    async findBookingById (id: Types.ObjectId): Promise<Booking | null> {
+        return await this.bookingRepository.findById(id);
     }
 
-    async updateBookingById (id: string, booking: Partial<Booking>): Promise<Booking | null> {
-        return this.bookingRepository.update(id, booking);
+    async updateBookingById (id: Types.ObjectId, booking: Partial<Booking>): Promise<Booking | null> {
+        return await this.bookingRepository.update(id, booking);
     }   
 
-    async deleteBookingById (id: string): Promise<boolean> {
-        return this.bookingRepository.delete(id);
-    }  
+    async deleteBookingById (id: Types.ObjectId): Promise<boolean> {
+        return await this.bookingRepository.delete(id);
+    } 
+
+    async getStudentsByTutorBooking(id: Types.ObjectId): Promise<{day: number, count: number}[]> {
+        const idTutor: Types.ObjectId = id;
+
+        const tutorExist = this.userRepository.findById(idTutor);
+
+        if (!tutorExist){
+            throw new Error ("Tutor no found");
+        }
+
+        const result = await this.bookingRepository.recuentStudentsForDays({ idTutor});
+
+        return result;
+    }
 }

@@ -18,15 +18,15 @@ export class SubjectService implements ISubjectService {
         return this.subjectRepository.findAll(query);
     }
 
-    async findSubjectById (id: string): Promise<Subject | null> {
+    async findSubjectById (id: Types.ObjectId): Promise<Subject | null> {
         return this.subjectRepository.findById(id);
     }
 
-    async updateSubjectById (id: string, subject: Partial<Subject>): Promise<Subject | null> {
+    async updateSubjectById (id: Types.ObjectId, subject: Partial<Subject>): Promise<Subject | null> {
         return this.subjectRepository.update(id, subject);
     }   
 
-    async deleteSubjectById (id: string): Promise<boolean> {
+    async deleteSubjectById (id: Types.ObjectId): Promise<boolean> {
         return this.subjectRepository.delete(id);
     }
 

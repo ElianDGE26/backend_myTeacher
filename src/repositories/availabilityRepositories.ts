@@ -1,6 +1,7 @@
 import { AvailabilityModel } from "../models/availabilityModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IAvailabilityRepository, Availability } from "../types/availabilityTypes";
+import { Types } from "mongoose";
 
 
 export class AvailabilityRepository implements IAvailabilityRepository{
@@ -15,15 +16,15 @@ export class AvailabilityRepository implements IAvailabilityRepository{
         return await AvailabilityModel.find(query || {}).exec();
     }   
 
-    async findById(id: string): Promise<Availability | null> {
+    async findById(id: Types.ObjectId): Promise<Availability | null> {
         return await AvailabilityModel.findById(id).exec();
     }
 
-    async update(id: string, data: Partial<Availability>): Promise<Availability | null> {
+    async update(id: Types.ObjectId, data: Partial<Availability>): Promise<Availability | null> {
         return await AvailabilityModel.findByIdAndUpdate(id, data, { new: true }).exec();
     }
 
-    async delete (id: string): Promise<boolean> {
+    async delete (id: Types.ObjectId): Promise<boolean> {
         const result = await AvailabilityModel.findByIdAndDelete(id).exec();
         return result ? true : false;
     }

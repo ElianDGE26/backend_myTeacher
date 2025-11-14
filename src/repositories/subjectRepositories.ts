@@ -1,6 +1,7 @@
 import { SubjectModel } from "../models/subjectModels";
 import { Query } from "../types/reporsitoryTypes";
 import { ISubjectRepository, Subject } from "../types/subjectsTypes";
+import { Types } from "mongoose";
 
 
 export class SubjectRepository implements ISubjectRepository{
@@ -15,15 +16,15 @@ export class SubjectRepository implements ISubjectRepository{
         return await SubjectModel.find(query || {}).exec();
     }   
 
-    async findById(id: string): Promise<Subject | null> {
+    async findById(id: Types.ObjectId): Promise<Subject | null> {
         return await SubjectModel.findById(id).exec();
     }
 
-    async update(id: string, data: Partial<Subject>): Promise<Subject | null> {
+    async update(id: Types.ObjectId, data: Partial<Subject>): Promise<Subject | null> {
         return await SubjectModel.findByIdAndUpdate(id, data, { new: true }).exec();
     }
 
-    async delete (id: string): Promise<boolean> {
+    async delete (id: Types.ObjectId): Promise<boolean> {
         const result = await SubjectModel.findByIdAndDelete(id).exec();
         return result ? true : false;
     }

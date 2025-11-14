@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { Query } from "../types/reporsitoryTypes";
 import { IUserRepository, IUserService, User } from "../types/usersTypes";
 
@@ -17,7 +18,7 @@ export class UserService implements IUserService {
         return this.userRepository.findAll(query);
     }
 
-    async findUserById (id: string): Promise<User | null> {
+    async findUserById (id: Types.ObjectId): Promise<User | null> {
         return this.userRepository.findById(id);
     }
 
@@ -25,11 +26,12 @@ export class UserService implements IUserService {
         return this.userRepository.findOne({ email });
     }
 
-    async updateUserById (id: string, user: Partial<User>): Promise<User | null> {
+    async updateUserById (id: Types.ObjectId, user: Partial<User>): Promise<User | null> {
         return this.userRepository.update(id, user);
     }   
 
-    async deleteUserById (id: string): Promise<boolean> {
+    async deleteUserById (id: Types.ObjectId): Promise<boolean> {
         return this.userRepository.delete(id);
-    }  
+    }
+
 }

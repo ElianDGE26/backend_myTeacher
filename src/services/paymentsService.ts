@@ -81,18 +81,18 @@ export class PaymentsService implements IPaymentsService {
     return this.paymentsRepository.findAll(query);
   }
 
-  async findPaymentById(id: string): Promise<Payments | null> {
+  async findPaymentById(id: Types.ObjectId): Promise<Payments | null> {
     return this.paymentsRepository.findById(id);
   }
 
   async updatePaymentById(
-    id: string,
+    id: Types.ObjectId,
     payment: Partial<Payments>
   ): Promise<Payments | null> {
     return this.paymentsRepository.update(id, payment);
   }
 
-  async deletePaymentById(id: string): Promise<boolean> {
+  async deletePaymentById(id: Types.ObjectId): Promise<boolean> {
     return this.paymentsRepository.delete(id);
   }
 

@@ -17,15 +17,15 @@ export class PaymentsRepository implements IPaymentsRepository{
         return await PaymentModel.find(query || {}).exec();
     }   
 
-    async findById(id: string): Promise<Payments | null> {
+    async findById(id: Types.ObjectId): Promise<Payments | null> {
         return await PaymentModel.findById(id).exec();
     }
 
-    async update(id: string, data: Partial<Payments>): Promise<Payments | null> {
+    async update(id: Types.ObjectId, data: Partial<Payments>): Promise<Payments | null> {
         return await PaymentModel.findByIdAndUpdate(id, data, { new: true }).exec();
     }
 
-    async delete (id: string): Promise<boolean> {
+    async delete (id: Types.ObjectId): Promise<boolean> {
         const result = await PaymentModel.findByIdAndDelete(id).exec();
         return result ? true : false;
     }

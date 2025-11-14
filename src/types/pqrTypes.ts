@@ -15,7 +15,7 @@ export interface IPqrRepository extends Repository<Pqr> {
 export interface IPqrService {
     createPqr(pqr: Pqr): Promise<Pqr>;
     findAllPqrs(query?: Query): Promise<Pqr[]>;
-    findPqrById(id: string): Promise<Pqr | null>;
-    updatePqrById(id: string, pqr: Partial<Pqr>): Promise<Pqr | null>;
-    deletePqrById(id: string): Promise<boolean>;
+    findPqrById(id: Types.ObjectId): Promise<Pqr | null>;
+    updatePqrById(id: Types.ObjectId, pqr: Partial<Pqr>): Promise<Pqr | null>;
+    deletePqrById(id: Types.ObjectId): Promise<boolean>;
 }

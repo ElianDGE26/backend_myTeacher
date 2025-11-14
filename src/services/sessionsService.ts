@@ -10,17 +10,17 @@ const ACCESS_SECRET: string = config.jwtSecret;
 const ACCESS_SECRET_REFRESH_TOKEN: string = config.jwtSecretRefreshToken;
 
 export class SessionService implements ISessionService {
-    private sessionRepository: SessionRepository;
+    private sessionRepository: ISessionRepository;
 
-    constructor(sessionRepository: SessionRepository){
+    constructor(sessionRepository: ISessionRepository){
         this.sessionRepository = sessionRepository;
     }
 
-    findSessionById(id: string): Promise<Session | null> {
+    findSessionById(id: Types.ObjectId): Promise<Session | null> {
         return this.sessionRepository.findById(id);
     }
 
-    updateSessionByid(id: string, session: Partial<Session>): Promise<Session | null> {
+    updateSessionByid(id: Types.ObjectId, session: Partial<Session>): Promise<Session | null> {
         return this.sessionRepository.update(id, session);
     }
 
@@ -28,7 +28,7 @@ export class SessionService implements ISessionService {
         return this.sessionRepository.findAll(query);
     }
 
-    deleteSessionById(id: string): Promise<boolean> {
+    deleteSessionById(id: Types.ObjectId): Promise<boolean> {
         return this.sessionRepository.delete(id);
     }
 

@@ -8,7 +8,7 @@ import { ISessionService, Session } from "../../types/sessionTypes";
 import { SessionRepository } from "../../repositories/sessionRepository"
 import { SessionService } from "../../services/sessionsService";
 import { ref } from "process";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 // Clave secreta para firmar los tokens JWT
 const SECRET_KEY = config.jwtSecret;
@@ -129,18 +129,21 @@ export const changePassword = async (req:Request, res: Response) => {
         }
 
         const user = await userService.findUserByEmail(email);
-
+        
+        //el usuario no existe en la bdd
         if(!user){
             return res.status(404).json({ message: "User not found"});
         }
 
+        //comparamos password
         const isPasswordValid = await user.comparePassword(password);
 
         if(!isPasswordValid){
             return res.status(401).json({ message: "Inavlid current pasword"});
         }
 
-        const updatePassword = await userService.updateUserById(user._id as string, { password: newPassword});
+        //actaulizamos la contraseña en la bdd
+        const updatePassword = await userService.updateUserById(new mongoose.Types.ObjectId(user._id as string), { password: newPassword});
 
         if(!updatePassword){
             return res.status(500).json({ message: "Error updating password"});
@@ -184,7 +187,7 @@ export const refreshToken = async (req: Request, res:Response) => {
             return res.status(400).json({ message: "Refresh token is required"});
         }
 
-        const session = await sessionService.findSessionByRefreshToken(refreshToken);
+        const session = await sessionService.findSessionByRefreshToken(refreshToken); //se busca en ls bdd
         
         //verificamos sino existe la session en bdd
         if (!session) {
@@ -193,7 +196,7 @@ export const refreshToken = async (req: Request, res:Response) => {
 
         //verificamos si el token ha expirado
         if (session.expiresAt.getTime() < Date.now()){ //valida token expirado 
-            await sessionService.deleteSessionById(session._id as string);
+            await sessionService.deleteSessionById(new mongoose.Types.ObjectId(session._id as string));
             return res.status(401).json({ message: "Refresh token has expired"});
         }
 
@@ -202,7 +205,7 @@ export const refreshToken = async (req: Request, res:Response) => {
         try { //se verifica la firma del token
             payload = TokenService.verifyRefreshToken(refreshToken);
         } catch (error) {
-            await sessionService.deleteSessionById(session._id as string);
+            await sessionService.deleteSessionById(new mongoose.Types.ObjectId(session._id as string));
             return res.status(401).json({ message: "Invalid refresh token"});
         }
 
@@ -214,7 +217,7 @@ export const refreshToken = async (req: Request, res:Response) => {
         });
 
         //actualizamos la session en la bdd
-        await sessionService.updateSessionByid(session._id as string, {
+        await sessionService.updateSessionByid(new mongoose.Types.ObjectId(session._id as string), {
             accessToken: newAccessToken,
             refreshToken: newRefreshToken,
             expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),

@@ -14,7 +14,7 @@ export interface IReviewRepository extends Repository<Review> {
 export interface IReviewService {
     createReview(Review: Review): Promise<Review>;
     findAllReviews(query?: Query): Promise<Review[]>;
-    findReviewById(id: string): Promise<Review | null>;
-    updateReviewById(id: string, review: Partial<Review>): Promise<Review | null>;
-    deleteReviewById(id: string): Promise<boolean>;
+    findReviewById(id: Types.ObjectId): Promise<Review | null>;
+    updateReviewById(id: Types.ObjectId, review: Partial<Review>): Promise<Review | null>;
+    deleteReviewById(id: Types.ObjectId): Promise<boolean>;
 }   

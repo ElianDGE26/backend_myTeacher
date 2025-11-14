@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import { UserModel } from "../models/userModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IUserRepository, User } from "../types/usersTypes";
@@ -15,15 +16,15 @@ export class UserRepository implements IUserRepository{
         return await UserModel.find(query || {}).exec();
     }   
 
-    async findById(id: string): Promise<User | null> {
+    async findById(id: Types.ObjectId): Promise<User | null> {
         return await UserModel.findById(id).exec();
     }
 
-    async update(id: string, data: Partial<User>): Promise<User | null> {
+    async update(id: Types.ObjectId, data: Partial<User>): Promise<User | null> {
         return await UserModel.findByIdAndUpdate(id, data, { new: true }).exec();
     }
 
-    async delete (id: string): Promise<boolean> {
+    async delete (id: Types.ObjectId): Promise<boolean> {
         const result = await UserModel.findByIdAndDelete(id).exec();
         return result ? true : false;
     }

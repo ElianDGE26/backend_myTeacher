@@ -3,6 +3,7 @@ import { UserRepository } from "../repositories/userRepositories";
 import { UserService } from "../services/userService";
 import { User} from "../types/usersTypes";
 import { Request, Response } from "express";
+import mongoose from "mongoose";
 
 const userRepository: IUserRepository = new UserRepository();
 const userService: IUserService = new UserService(userRepository);
@@ -33,8 +34,13 @@ export const getUserByid = async (req: Request, res: Response) => {
         if (!id) {
             return res.status(400).json({ message: "Missing user ID in params" });
         }
+
+        //se valida que el id si sea de tipo Object ID
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ message: "Invalid Booking Id" });
+      }
         
-        const result =  await userService.findUserById(id);
+        const result =  await userService.findUserById(new mongoose.Types.ObjectId(id));
 
         if (!result) {
             return res.status(404).json({ message: "No user found" });
@@ -67,26 +73,30 @@ export const createUser = async (req: Request, res: Response) => {
 
 export const updateUserByid = async (req: Request, res: Response) => {
     try {
-        const {id } = req.params;
-        const userUpdate: User = req.body;
+      const { id } = req.params;
+      const userUpdate: User = req.body;
 
-        if (!id) {
-            return res.status(400).json({ message: "Missing user ID in params" });
-        }
+      if (!id) {
+        return res.status(400).json({ message: "Missing user ID in params" });
+      }
 
-        const userExist = await userService.findUserById(id);
+      const userExist = await userService.findUserById(new mongoose.Types.ObjectId(id));
 
-        if (!userExist) {
-            return res.status(404).json({ message: "User not found"});
-        }
+      if (!userExist) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-        const result =  await userService.updateUserById(id, userUpdate);
-        if (!result){
-            return res.status(500).json({ message: "error updating user"});
-        }
+      //se valida que el id si sea de tipo Object ID
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ message: "Invalid Booking Id" });
+      }
 
-        res.json(result);
-        
+      const result = await userService.updateUserById(new mongoose.Types.ObjectId(id), userUpdate);
+      if (!result) {
+        return res.status(500).json({ message: "error updating user" });
+      }
+
+      res.json(result);
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ message: "Internal server error" });
@@ -101,7 +111,12 @@ export const deleteUserByid = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Missing user ID in params" });
         }
 
-        const result =  await userService.deleteUserById(id);
+        //se valida que el id si sea de tipo Object ID
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ message: "Invalid Booking Id" });
+      }
+
+        const result =  await userService.deleteUserById(new mongoose.Types.ObjectId(id));
 
         if (!result) {
             return res.status(404).json({ message: "User not found" });

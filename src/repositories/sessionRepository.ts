@@ -16,13 +16,13 @@ export class SessionRepository implements ISessionRepository {
     async findAll(query?: Query): Promise<Session[]> {
         return  await SessionModel.find(query || {}).exec();
     }
-    async findById(id: string): Promise<Session | null> {
+    async findById(id: Types.ObjectId): Promise<Session | null> {
         return await SessionModel.findById(id).exec();
     }
-    async update(id: string, item: Partial<Session>): Promise<Session | null> {
+    async update(id: Types.ObjectId, item: Partial<Session>): Promise<Session | null> {
         return await SessionModel.findByIdAndUpdate(id, item, { new:true}).exec();
     }
-    async delete(id: string): Promise<boolean> {
+    async delete(id: Types.ObjectId): Promise<boolean> {
         const result  =  await SessionModel.findByIdAndDelete(id).exec();
         return result ? true: false;
     }

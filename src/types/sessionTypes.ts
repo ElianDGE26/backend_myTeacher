@@ -11,14 +11,17 @@ export interface Session extends Document {
 
 export interface ISessionRepository extends Repository<Session> {
     findOne(query: Query): Promise<Session | null>;
+    deleteByRefreshToken(query: Query): Promise<boolean>;
+    deleteByUserId(userId: Types.ObjectId): Promise<boolean> ;
+
 }
 
 export interface ISessionService {
     createSession(session: Session): Promise<Session>;
-    findSessionById(id: string): Promise<Session | null>;
-    updateSessionByid(id: string, session: Partial<Session>): Promise<Session | null>;
+    findSessionById(id: Types.ObjectId): Promise<Session | null>;
+    updateSessionByid(id: Types.ObjectId, session: Partial<Session>): Promise<Session | null>;
     findAllSessions(query?: Query): Promise<Session[]>;
-    deleteSessionById(id: string): Promise<boolean>;
+    deleteSessionById(id: Types.ObjectId): Promise<boolean>;
     findSessionByRefreshToken(refreshToken: string): Promise<Session | null>;
     deleteSessionByRefreshToken(refreshToken: string): Promise<boolean>;
     deleteSessionByUserId(userId: Types.ObjectId): Promise<boolean>;

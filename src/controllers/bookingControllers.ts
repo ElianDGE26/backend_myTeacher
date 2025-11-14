@@ -2,9 +2,13 @@ import { IBookingRepository, IBookingService, Booking } from "../types/bookingsT
 import { BookingRepository } from "../repositories/bookingRepositories";
 import { BookingService } from "../services/bookingService";
 import { Request, Response } from "express";
+import { IUserRepository } from "../types/usersTypes";
+import { UserRepository } from "../repositories/userRepositories";
+import mongoose from "mongoose";
 
 const bookingRepository: IBookingRepository = new BookingRepository();
-const bookingService: IBookingService = new BookingService(bookingRepository);
+const userRepository: IUserRepository = new UserRepository();
+const bookingService: IBookingService = new BookingService(bookingRepository, userRepository);
 
 
 
@@ -27,13 +31,19 @@ export const getAllBookings = async (req: Request, res: Response) => {
 
 export const getBookingByid = async (req: Request, res: Response) => {
     try {
-        const { id} = req.params;
+        const { id } = req.params;
 
         if (!id) {
             return res.status(400).json({ message: "Missing Booking ID in params" });
         }
-        
-        const result =  await bookingService.findBookingById(id);
+
+        //se valida que el id si sea de tipo Object ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
+
+        //se envia el parametro como tipo Object Id
+        const result =  await bookingService.findBookingById(new mongoose.Types.ObjectId(id));
 
         if (!result) {
             return res.status(404).json({ message: "No Booking found" });
@@ -72,8 +82,12 @@ export const updateBookingByid = async (req: Request, res: Response) => {
         if (!id) {
             return res.status(400).json({ message: "Missing Booking ID in params" });
         }
+        //se valida que el id si sea de tipo Object ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
 
-        const result =  await bookingService.updateBookingById(id, bookingUpdate);
+        const result =  await bookingService.updateBookingById(new mongoose.Types.ObjectId(id), bookingUpdate);
 
         if (!result) {
             return res.status(404).json({ message: "Booking not found" });
@@ -94,8 +108,12 @@ export const deleteBookingByid = async (req: Request, res: Response) => {
         if (!id) {
             return res.status(400).json({ message: "Missing Booking ID in params" });
         }
+        //se valida que el id si sea de tipo Object ID
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
 
-        const result =  await bookingService.deleteBookingById(id);
+        const result =  await bookingService.deleteBookingById(new mongoose.Types.ObjectId(id));
 
         if (!result) {
             return res.status(404).json({ message: "Booking not found" });
@@ -117,7 +135,12 @@ export const bookingsByStudentsId = async (req: Request, res: Response) => {
             return res.status(400).json( { message: "Missing user ID in params" } );
         }
 
-        const resutlt = await bookingService.findAllBookings({ studentId: userId});
+        //se valida que el id si sea de tipo Object ID
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
+
+        const resutlt = await bookingService.findAllBookings({ studentId: new mongoose.Types.ObjectId(userId)});
 
         if( !resutlt || resutlt.length === 0 ){
             return  res.status(404).json( { message: "No bookings found for the given student ID"} );
@@ -139,7 +162,12 @@ export const bookingsByTutorId = async (req: Request, res: Response) => {
             return res.status(400).json( { message: "Missing user ID in params" } );
         }
 
-        const resutlt = await bookingService.findAllBookings({ tutorId: userId});
+        //se valida que el id si sea de tipo Object ID
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
+
+        const resutlt = await bookingService.findAllBookings({ tutorId: new mongoose.Types.ObjectId(userId)});
 
         if( !resutlt || resutlt.length === 0 ){
             return  res.status(404).json( { message: "No bookings found for the given tutor ID"} );
@@ -149,5 +177,32 @@ export const bookingsByTutorId = async (req: Request, res: Response) => {
     } catch (error) {
         console.log('error find bookings by tutor id:>> ', error);
         res.status(500).json( { message: "Internat server Error"} );
+    }
+}
+
+//traer el numeo de estudiantes que hicieron reservas con un tutor
+export const getCountStudentsTheBookingForTutor = async (req:Request, res:Response) => {
+    try {
+        const { tutorId } = req.params;
+
+        if (!tutorId) {
+            return res.status(400).json( {
+                message: "The tutor ID must be required"
+            } );
+        }
+
+        //se valida que el id si sea de tipo Object ID
+        if (!mongoose.Types.ObjectId.isValid(tutorId))  {
+            return res.status(404).json({ message: "Invalid Booking Id"})
+        }
+
+        const result = await bookingService.getStudentsByTutorBooking(new mongoose.Types.ObjectId(tutorId));
+
+
+        res.json(result);
+        
+    }catch (error) {
+        console.log("Error counting students who made reservations with tutor : >>>> ", error);
+        res.status(500).json({ message: "Error counting students who made reservations with tutor "} );
     }
 }

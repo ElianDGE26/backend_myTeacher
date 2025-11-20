@@ -11,7 +11,7 @@ const SubjectSchema: Schema = new Schema<Subject>(
     name: { type: String, required: true },
     educationLevel: {
       type: String,
-      enum: ["Primaria", "Secundaria", "Universitaria", "Postgrado"],
+      enum: ["Primaria", "Secundaria", "Universitaria", "Postgrado","General"],
       required: true,
     },
     description: { type: String, required: true },

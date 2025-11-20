@@ -5,7 +5,7 @@ import { Repository, Query} from "./reporsitoryTypes";
 export interface Pqr extends Document {
     userId: Types.ObjectId;
     comments:string;
-    status: 'open' | 'in_progress' | 'closed';
+    status: 'Abierta' | 'En progreso' | 'Cerrada';
 }
 
 export interface IPqrRepository extends Repository<Pqr> {

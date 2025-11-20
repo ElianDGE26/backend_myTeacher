@@ -5,7 +5,7 @@ import { Repository, Query } from "./reporsitoryTypes";
 export interface Availability extends Document {
     tutorId: Types.ObjectId;
     date?: Date;
-    dayOfWeek?: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
+    dayOfWeek?: 'Lunnes' | 'Martes' | 'Miercoles' | 'Jueves' | 'Viernes' | 'Sábado' | 'Domingo';
     startTime: string; // formato "HH:mm"
     endTime: string;   // formato "HH:mm"
     isRecurring: boolean;

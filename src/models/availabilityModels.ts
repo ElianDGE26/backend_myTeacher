@@ -19,7 +19,7 @@ const AvailabilitySchema: Schema = new Schema<Availability>(
     },
     dayOfWeek: { 
       type: String, 
-      enum: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], 
+      enum: ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"],
       required: false 
     },
     startTime: { 

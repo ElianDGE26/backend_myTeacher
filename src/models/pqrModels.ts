@@ -19,7 +19,7 @@ const PqrSchema: Schema = new Schema<Pqr>(
     },
     status: { 
       type: String, 
-      enum: ["open", "in_progress", "closed"], 
+      enum: ["Abierta", "En progreso", "Cerrada"], 
       required: true 
     }
   },

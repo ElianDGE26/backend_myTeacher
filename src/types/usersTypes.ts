@@ -5,7 +5,7 @@ export interface User extends Document {
     name: string;
     email: string;
     password: string;
-    role: 'student' | 'teacher' | 'admin';
+    role: 'Estudiante' | 'Tutor' | 'Admin';
     validatedTeacher: boolean;
     phone?: string;
     balance: number;

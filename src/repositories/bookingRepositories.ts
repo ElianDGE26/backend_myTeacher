@@ -41,7 +41,7 @@ export class BookingRepository implements IBookingRepository{
     async recuentStudentsBookings(query: Query): Promise<number> {
         const Idtutor = query.tutorId;
         const datefilter = query.date;
-        const students = await BookingModel.distinct( "studentId", { tutorId: Idtutor, status: "completed", date: datefilter} ); 
+        const students = await BookingModel.distinct( "studentId", { tutorId: Idtutor, status: "Completada", date: datefilter} ); 
         return students.length; 
     }
 
@@ -57,7 +57,7 @@ export class BookingRepository implements IBookingRepository{
             {
                 $match: {
                     tutorId: id,
-                    status: "Completed",
+                    status: "Completada",
                     date: { $gte: startOfMonth, $lte: endOfMonthh} // filtrar por mes actual
                 }
             },

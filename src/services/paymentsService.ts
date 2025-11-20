@@ -102,8 +102,8 @@ export class PaymentsService implements IPaymentsService {
     return Promise.all([
       this.bookingRepository.recuentStudentsBookings({ tutorId, date: { $gte: startDate, $lte: endDate }}),
       this.paymentsRepository.totalIncomeByTutor({ tutorId, date: { $gte: startDate, $lte: endDate }}),
-      this.bookingRepository.countByDocuments({ tutorId, status: "canceled",date: { $gte: startDate, $lte: endDate }}),
-      this.bookingRepository.countByDocuments({ tutorId, status: "pending", date: { $gte: startDate, $lte: endDate }}),
+      this.bookingRepository.countByDocuments({ tutorId, status: "Cancelada",date: { $gte: startDate, $lte: endDate }}),
+      this.bookingRepository.countByDocuments({ tutorId, status: "Pendiente", date: { $gte: startDate, $lte: endDate }}),
     ]);
   }
 

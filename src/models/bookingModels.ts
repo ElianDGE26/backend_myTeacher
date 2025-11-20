@@ -25,7 +25,7 @@ const BookingSchema: Schema = new Schema<Booking>(
     },
     type: {
       type: String,
-      enum: ["virtual", "in-person"],
+      enum: ["Virtual", "Presencial"],
       required: true
     },
     location: {
@@ -34,7 +34,7 @@ const BookingSchema: Schema = new Schema<Booking>(
     },
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "completed", "canceled"],
+      enum: ["Pendiente", "Aceptada", "Rechazada", "Completada", "Cancelada"],
       required: true
     },
     date: {

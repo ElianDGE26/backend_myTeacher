@@ -5,7 +5,7 @@ const router = Router();
 
 
 //Rutas Get
-router.get("/availabilitiyTutor/:id", verifyToken, getAllAvailabilitiesByTutorId);
+router.get("/availabilityTutor/:id", verifyToken, getAllAvailabilitiesByTutorId);
 router.get("/:id", verifyToken, getAvailabilityByid);
 router.get("/", verifyToken, getAllAvailabilities);
 

@@ -9,10 +9,18 @@ const COLLECTION_NAME: string = MODEL_NAMES.SUBJECT;
 const SubjectSchema: Schema = new Schema<Subject>(
   {
     name: { type: String, required: true },
-    educationLevel: { type: String, enum: ["Primary", "Secundary", "University", "Postgraduate"], required: true },
+    educationLevel: {
+      type: String,
+      enum: ["Primaria", "Secundaria", "Universitaria", "Postgrado"],
+      required: true,
+    },
     description: { type: String, required: true },
     price: { type: Number, required: true },
-    tutorId: { type: Schema.Types.ObjectId, ref: MODEL_NAMES.USER,required: true}
+    tutorId: {
+      type: Schema.Types.ObjectId,
+      ref: MODEL_NAMES.USER,
+      required: true,
+    },
   },
   {
     timestamps: true,
@@ -25,10 +33,10 @@ const SubjectSchema: Schema = new Schema<Subject>(
           educationLevel: ret.educationLevel,
           description: ret.description,
           price: ret.price,
-          tutorId: ret.tutorId
+          tutorId: ret.tutorId,
         };
-      }
-    }
+      },
+    },
   }
 );
 

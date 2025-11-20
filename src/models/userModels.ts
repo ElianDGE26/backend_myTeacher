@@ -13,7 +13,7 @@ const UserSchema: Schema = new Schema<User>(
     password: { type: String, required: true, trim: true },
     role: {
       type: String,
-      enum: ["student", "teacher", "admin"],
+      enum: ["Estudiante", "Tutor", "Admin"],
       required: true,
     },
     balance: { type: Number, required: false, default: 0 },

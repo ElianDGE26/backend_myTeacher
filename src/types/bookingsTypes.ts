@@ -6,9 +6,9 @@ export interface Booking extends Document {
     studentId: Types.ObjectId;
     tutorId: Types.ObjectId;
     subjectId: Types.ObjectId;
-    type: 'virtual' | 'in-person';
+    type: 'virtual' | 'Presencial';
     location:string;
-    status: 'pending' | 'accepted' | 'rejected' | 'completed' | 'canceled';
+    status: 'Pendiente' | 'Aceptada' | 'Rechazada' | 'Completada' | 'Cancelada';
     date: Date;
     startTime: string;
     endTime: string;

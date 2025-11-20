@@ -15,12 +15,12 @@ const PaymentSchema: Schema = new Schema<Payments>(
     },
     method: {
       type: String,
-      enum: ["card", "bank_transfer", "paypal"],
+      enum: ["Tarjeta", "Transferencia bancaria", "PayPal"],
       required: true
     },
     status: {
       type: String,
-      enum: ["pending", "paid", "failed"],
+      enum: ["Pendiente", "Pagada", "Fallida"],
       required: true
     },
     date: {

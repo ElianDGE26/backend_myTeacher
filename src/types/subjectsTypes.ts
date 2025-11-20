@@ -3,7 +3,7 @@ import { Repository, Query} from "./reporsitoryTypes";
 
 export interface Subject extends Document {
     name: string;
-    educationLevel: 'Primary' | 'Secondary' | 'University' | 'Postgraduate';
+    educationLevel: 'Primaria' | 'Secundaria' | 'University' | 'Postgrado';
     description: string;
     price: number;
     tutorId: Types.ObjectId;

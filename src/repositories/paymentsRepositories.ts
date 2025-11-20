@@ -42,7 +42,7 @@ export class PaymentsRepository implements IPaymentsRepository{
         const bookingIds = resultBooking.map(booking => booking._id);
 
         const result = await PaymentModel.aggregate([
-            { $match: { bookingId: { $in: bookingIds}, status: "paid"}},
+            { $match: { bookingId: { $in: bookingIds}, status: "Pagada"}},
             { $group: { _id: null, total: { $sum: "$amount"}}}
         ]);
 

@@ -57,7 +57,6 @@ export const getBookingByid = async (req: Request, res: Response) => {
     }
 }
 
-
 export const createBooking = async (req: Request, res: Response) => {
     try {
 
@@ -72,7 +71,6 @@ export const createBooking = async (req: Request, res: Response) => {
         res.status(400).json({ message: "Internal server error" });
     }
 }
-
 
 export const updateBookingByid = async (req: Request, res: Response) => {
     try {
@@ -126,6 +124,7 @@ export const deleteBookingByid = async (req: Request, res: Response) => {
     }
 }
 
+//Reservas por el id del estudiante
 export const bookingsByStudentsId = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params;
@@ -153,6 +152,7 @@ export const bookingsByStudentsId = async (req: Request, res: Response) => {
     }
 }
 
+//reservas por el id del tutor, es decir, las tutorias que él profesor ha hecho
 export const bookingsByTutorId = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params;
@@ -180,7 +180,7 @@ export const bookingsByTutorId = async (req: Request, res: Response) => {
     }
 }
 
-//traer el numeo de estudiantes que hicieron reservas con un tutor
+//traer el numeo de estudiantes que hicieron reservas con un tutor para el  grafico 
 export const getCountStudentsTheBookingForTutor = async (req:Request, res:Response) => {
     try {
         const { tutorId } = req.params;

@@ -4,9 +4,12 @@ import { SubjectService } from "../services/subjectService";
 import { Subject } from "../types/subjectsTypes";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
+import { IAvailabilityRepository } from "../types/availabilityTypes";
+import { AvailabilityRepository } from "../repositories/availabilityRepositories";
 
 const subjectRepository: ISubjectRepository = new SubjectRepository();
-const subjectService: ISubjectService = new SubjectService(subjectRepository);
+const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
+const subjectService: ISubjectService = new SubjectService(subjectRepository, availabilityRepository);
 
 export const getAllSubjects = async (req: Request, res: Response) => {
   try {
@@ -122,6 +125,9 @@ export const deleteSubjectByid = async (req: Request, res: Response) => {
   }
 };
 
+/* 
+controlador para el buscador de las materias y que devuelva los docentes que hay disponnibles
+*/
 export const findUserBySubjectName = async (req: Request, res: Response) => {
   try {
     const { subjectName } = req.params;
@@ -152,6 +158,9 @@ export const findUserBySubjectName = async (req: Request, res: Response) => {
   }
 };
 
+/* 
+Controlador para que el mismo tutor pueda ver las materias que imparte
+*/
 export const findSubjectByTutorId = async (req: Request, res: Response) => {
   try {
     console.log("tutorId recibido:", req.params);

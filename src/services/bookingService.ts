@@ -44,15 +44,14 @@ export class BookingService implements IBookingService {
     } 
 
     async getStudentsByTutorBooking(id: Types.ObjectId): Promise<{day: number, count: number}[]> {
-        const idTutor: Types.ObjectId = id;
 
-        const tutorExist = this.userRepository.findById(idTutor);
+        const tutorExist = this.userRepository.findById(id);
 
         if (!tutorExist){
             throw new Error ("Tutor no found");
         }
 
-        const result = await this.bookingRepository.recuentStudentsForDays({ idTutor});
+        const result = await this.bookingRepository.recuentStudentsForDays({ id });
 
         return result;
     }

@@ -69,7 +69,7 @@ const BookingSchema: Schema = new Schema<Booking>(
           tutorId: ret.tutorId,
           subjectId: ret.subjectId,
           type: ret.type,
-          location: ret.t,
+          location: ret.location,
           status: ret.status,
           date: ret.date,
           startTime: ret.startTime,

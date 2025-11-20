@@ -41,8 +41,8 @@ export class SubjectRepository implements ISubjectRepository{
         // Normalizamos la palabra a buscar (quitamos tildes y pasamos a minúsculas)
         const normalized = subjectName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-        console.log('query :>> ', normalized);
-        const allSubjects = await SubjectModel.find().populate('tutorId', '-_id -password');
+       // console.log('query :>> ', normalized);
+        const allSubjects = await SubjectModel.find().populate('tutorId', '-password').lean();
 
 
         const filtered = allSubjects.filter(s => 
@@ -50,7 +50,7 @@ export class SubjectRepository implements ISubjectRepository{
             .includes(normalized)
         );
 
-        console.log('filtered :>> ', filtered);
+        //console.log('filtered :>> ', filtered);
 
         return filtered;
 

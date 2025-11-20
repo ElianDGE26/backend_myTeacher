@@ -2,7 +2,7 @@ import { IAvailabilityRepository, IAvailabilityService, Availability } from "../
 import { AvailabilityRepository } from "../repositories/availabilityRepositories";
 import { AvailabilityService } from "../services/availabilityService";
 import { Request, Response } from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
 const availabilityService: IAvailabilityService = new AvailabilityService(availabilityRepository);
@@ -118,5 +118,32 @@ export const deleteAvailabilityByid = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error fetching Availabilitys:", error);
         res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+
+export const getAllAvailabilitiesByTutorId = async (req: Request, res: Response) => {
+    try {
+        const { id }= req.params;
+
+        if(!id){
+            return res.status(404).json({ message: "Missing Subject ID in params"});
+        }
+
+        if(!mongoose.Types.ObjectId.isValid(id)){
+            return res.status(404).json({ message: "Invalid Booking Id" });
+        }
+
+        const result = await availabilityService.findAllAvailabilities({ tutorId: id});
+
+        if (!result) {
+             return res.status(404).json({ message: "No found availabilities by tutorId" });
+        }
+
+        res.json(result);
+
+        
+    } catch (error) {
+        console.error("Error find availabilities by id tutor")
     }
 }

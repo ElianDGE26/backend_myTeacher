@@ -1,13 +1,17 @@
 import { Types } from "mongoose";
 import { Query } from "../types/reporsitoryTypes";
 import { ISubjectRepository, ISubjectService, Subject } from "../types/subjectsTypes";
+import { IAvailabilityRepository } from "../types/availabilityTypes";
 
 
 export class SubjectService implements ISubjectService {
     private subjectRepository: ISubjectRepository;
+    private availabilityRepository: IAvailabilityRepository;
 
-    constructor(subjectRepository: ISubjectRepository) {
+
+    constructor(subjectRepository: ISubjectRepository,availabilityRepository: IAvailabilityRepository) {
         this.subjectRepository = subjectRepository;
+        this.availabilityRepository = availabilityRepository;
     }
 
     async createSubject (subject: Subject): Promise<Subject> {
@@ -30,8 +34,56 @@ export class SubjectService implements ISubjectService {
         return this.subjectRepository.delete(id);
     }
 
-    async findTeachersBySubject (query?: Query): Promise<Subject[]> {
-        return this.subjectRepository.findTeachersBySubject(query);
+    async findTeachersBySubject (query?: Query): Promise<any[]> {
+
+       
+
+
+        // 1️⃣ Obtener las materias (subjects) con tutor ya poblado
+        const subjects = await this.subjectRepository.findTeachersBySubject(query);
+
+        // 2️⃣ Obtener los IDs de los tutores
+        const tutorIds = subjects
+            .map(s => s.tutorId?._id?.toString())
+            .filter(Boolean) as string[];
+
+        // Eliminar duplicados
+        const uniqueTutorIds = [...new Set(tutorIds)];
+
+        // 3️⃣ Obtener la disponibilidad de todos los tutores encontrados
+        const availabilities = await this.availabilityRepository.findAll({  tutorId: uniqueTutorIds });
+
+        console.log('availabilities :>> ', availabilities);
+
+        // 4️⃣ Crear un mapa tutorId → sus disponibilidades
+        const availabilityMap = new Map<string, any[]>();
+        availabilities.forEach(a => {
+            const id = a.tutorId.toString();
+            if (!availabilityMap.has(id)) availabilityMap.set(id, []);
+            availabilityMap.get(id)?.push(a);
+        });
+
+
+        console.log("------------");
+        console.log('availabilityMap :>> ', availabilityMap);
+
+
+        // 5️⃣ Agregar availability dentro de tutorId para cada materia
+        const result = subjects.map(subject => {
+            const tutor = subject.tutorId;
+            const tutorId = tutor?._id?.toString();
+            const tutorAvailability = availabilityMap.get(tutorId) || [];
+
+            return {
+                ...subject, // subject limpio
+                tutorId: {
+                    ...tutor,      // tutor limpio
+                    availability: tutorAvailability
+                }
+            };
+        });
+
+        return result;
     }
 
     async findSubjectsByTutorId(tutorId: Types.ObjectId): Promise<Subject[]> {

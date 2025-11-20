@@ -134,6 +134,7 @@ export const deletePaymentByid = async (req: Request, res: Response) => {
   }
 };
 
+/*estadisticas del profesor como cuantas reservas, cuanto dinero le ingresó, cuantas totiras fueron canceladas del mes actual comparadas con las del mes anterior*/
 export const getStats = async (req: Request, res: Response) => {
   try {
     const { tutorId } = req.params;

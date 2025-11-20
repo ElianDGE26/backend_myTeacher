@@ -1,12 +1,15 @@
 import { Router } from "express";
-import { createAvailability, getAllAvailabilities, getAvailabilityByid, updateAvailabilityByid, deleteAvailabilityByid} from "../controllers/availabilityControllers";
+import { createAvailability, getAllAvailabilities, getAllAvailabilitiesByTutorId, getAvailabilityByid, updateAvailabilityByid, deleteAvailabilityByid} from "../controllers/availabilityControllers";
 import { verifyToken } from "../middelwears/authMiddelwears";
 const router = Router();
 
 
 //Rutas Get
-router.get("/", verifyToken, getAllAvailabilities);
+router.get("/availabilitiyTutor/:id", verifyToken, getAllAvailabilitiesByTutorId);
 router.get("/:id", verifyToken, getAvailabilityByid);
+router.get("/", verifyToken, getAllAvailabilities);
+
+
 
 //Rutas Post
 router.post("/create", verifyToken, createAvailability);

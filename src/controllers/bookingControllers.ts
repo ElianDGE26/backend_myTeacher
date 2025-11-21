@@ -4,7 +4,7 @@ import { BookingService } from "../services/bookingService";
 import { Request, Response } from "express";
 import { IUserRepository } from "../types/usersTypes";
 import { UserRepository } from "../repositories/userRepositories";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 const bookingRepository: IBookingRepository = new BookingRepository();
 const userRepository: IUserRepository = new UserRepository();
@@ -155,19 +155,19 @@ export const bookingsByStudentsId = async (req: Request, res: Response) => {
 //reservas por el id del tutor, es decir, las tutorias que él profesor ha hecho
 export const bookingsByTutorId = async (req: Request, res: Response) => {
     try {
-        const { userId } = req.params;
-        console.log('userId :>> ', userId);
+        const { tutorId } = req.params;
+        console.log('userId :>> ', tutorId);
         
-        if (!userId){
+        if (!tutorId){
             return res.status(400).json( { message: "Missing user ID in params" } );
         }
 
         //se valida que el id si sea de tipo Object ID
-        if (!mongoose.Types.ObjectId.isValid(userId)) {
+        if (!mongoose.Types.ObjectId.isValid(tutorId)) {
             return res.status(404).json({ message: "Invalid Booking Id"})
         }
 
-        const resutlt = await bookingService.findAllBookings({ tutorId: new mongoose.Types.ObjectId(userId)});
+        const resutlt = await bookingService.findAllBookings({ tutorId: new mongoose.Types.ObjectId(tutorId)});
 
         if( !resutlt || resutlt.length === 0 ){
             return  res.status(404).json( { message: "No bookings found for the given tutor ID"} );
@@ -198,8 +198,22 @@ export const getCountStudentsTheBookingForTutor = async (req:Request, res:Respon
 
         const result = await bookingService.getStudentsByTutorBooking(new mongoose.Types.ObjectId(tutorId));
 
+        let nextBookings = null;
 
-        res.json(result);
+        try {
+            nextBookings = await bookingService.getNextTwoBookingsForTutor(
+                new mongoose.Types.ObjectId(tutorId),
+                "Aceptada"
+            );
+        } catch (error) {
+            console.log("Error getting next bookings, ignoring error:", error);
+            nextBookings = null; // o []
+        }
+
+        return res.json({
+            result,
+            nextBookings
+        });
         
     }catch (error) {
         console.log("Error counting students who made reservations with tutor : >>>> ", error);

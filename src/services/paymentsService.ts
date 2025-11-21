@@ -13,14 +13,13 @@ export class PaymentsService implements IPaymentsService {
   private paymentsRepository: IPaymentsRepository;
   private bookingRepository: IBookingRepository;
 
-  constructor(
-    paymentsRepository: IPaymentsRepository,
-    bookingRepository: IBookingRepository
-  ) {
+  constructor( paymentsRepository: IPaymentsRepository,bookingRepository: IBookingRepository) {
     this.paymentsRepository = paymentsRepository;
     this.bookingRepository = bookingRepository;
   }
 
+
+  //Servicio para betener estadisticas para el perfil del tutor
   async totalTutorsStats(tutorId: Types.ObjectId): Promise<{
     students: number;
     income: number;
@@ -41,6 +40,7 @@ export class PaymentsService implements IPaymentsService {
     const startOfCurrentMonth = startOfMonth(today); // obtenemos el inicio del mes actual
     const endOfCurrentMonth = today; // dia de la consulta
 
+    //Fechas actuales
     console.log('today :>> ', today);
     console.log('startOfCurrentMonth :>> ', startOfCurrentMonth);
     console.log('endOfCurrenteMonth :>> ', endOfCurrentMonth);
@@ -85,10 +85,7 @@ export class PaymentsService implements IPaymentsService {
     return this.paymentsRepository.findById(id);
   }
 
-  async updatePaymentById(
-    id: Types.ObjectId,
-    payment: Partial<Payments>
-  ): Promise<Payments | null> {
+  async updatePaymentById( id: Types.ObjectId, payment: Partial<Payments>): Promise<Payments | null> {
     return this.paymentsRepository.update(id, payment);
   }
 
@@ -97,7 +94,11 @@ export class PaymentsService implements IPaymentsService {
   }
 
 
-  //funciones adicionales
+  /** método adicional para obetener las estdisticas de:
+   *  - estudiantes con reservas en una fecha dada
+   *  - Dinero recaudado por el tutor
+   *  - Total de tutorias canceladas y pendientes.
+   */
   async getStatsForPeriod (tutorId: Types.ObjectId, startDate: Date, endDate: Date)  {
     return Promise.all([
       this.bookingRepository.recuentStudentsBookings({ tutorId, date: { $gte: startDate, $lte: endDate }}),

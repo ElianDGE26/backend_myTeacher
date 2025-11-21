@@ -34,13 +34,17 @@ export class PaymentsRepository implements IPaymentsRepository{
         return await PaymentModel.findOne(query).exec();
     }
 
+
+
+    /* Función que suma el total de plpata de las reservas completadas que un tutor ha hecho en una fecha dada**/
     async totalIncomeByTutor(query: Query): Promise<number> {
         const tutorId = query.tutorId;
         const datefilter = query.date;
 
-        const resultBooking = await BookingModel.find({ tutorId: tutorId, date: datefilter}).select("_id").exec();
-        const bookingIds = resultBooking.map(booking => booking._id);
+        const resultBooking = await BookingModel.find({ tutorId: tutorId, date: datefilter}).select("_id").exec(); //Buscamos las tutorias  del tutorID
+        const bookingIds = resultBooking.map(booking => booking._id); //Traemos solo el id
 
+        //Buscamos en los pagos donde se encuentren los ids que ya tenemos de las reservas, en estados pagadas y sumamos los totales
         const result = await PaymentModel.aggregate([
             { $match: { bookingId: { $in: bookingIds}, status: "Pagada"}},
             { $group: { _id: null, total: { $sum: "$amount"}}}
@@ -48,9 +52,4 @@ export class PaymentsRepository implements IPaymentsRepository{
 
         return result[0]?.total || 0;
     }
-
-
-
-
-
 }

@@ -34,15 +34,13 @@ export class SubjectService implements ISubjectService {
         return this.subjectRepository.delete(id);
     }
 
+
+    /** funcion para para buscar tutores disponibles por materias; es para el buscador de materias*/
     async findTeachersBySubject (query?: Query): Promise<any[]> {
-
-       
-
-
-        // 1️⃣ Obtener las materias (subjects) con tutor ya poblado
+        // Obtenemos las materias (subjects) con tutor ya poblado
         const subjects = await this.subjectRepository.findTeachersBySubject(query);
 
-        // 2️⃣ Obtener los IDs de los tutores
+        // Obtener los IDs de los tutores
         const tutorIds = subjects
             .map(s => s.tutorId?._id?.toString())
             .filter(Boolean) as string[];
@@ -50,13 +48,14 @@ export class SubjectService implements ISubjectService {
         // Eliminar duplicados
         const uniqueTutorIds = [...new Set(tutorIds)];
 
-        // 3️⃣ Obtener la disponibilidad de todos los tutores encontrados
+        // Obtener la disponibilidad de todos los tutores encontrados
         const availabilities = await this.availabilityRepository.findAll({  tutorId: uniqueTutorIds });
 
         console.log('availabilities :>> ', availabilities);
 
-        // 4️⃣ Crear un mapa tutorId → sus disponibilidades
+        // Crear un mapa tutorId → sus disponibilidades
         const availabilityMap = new Map<string, any[]>();
+
         availabilities.forEach(a => {
             const id = a.tutorId.toString();
             if (!availabilityMap.has(id)) availabilityMap.set(id, []);
@@ -68,7 +67,7 @@ export class SubjectService implements ISubjectService {
         console.log('availabilityMap :>> ', availabilityMap);
 
 
-        // 5️⃣ Agregar availability dentro de tutorId para cada materia
+        // Agregar availability dentro de tutorId para cada materia
         const result = subjects.map(subject => {
             const tutor = subject.tutorId;
             const tutorId = tutor?._id?.toString();
@@ -86,7 +85,4 @@ export class SubjectService implements ISubjectService {
         return result;
     }
 
-    async findSubjectsByTutorId(tutorId: Types.ObjectId): Promise<Subject[]> {
-        return this.subjectRepository.findAll({ tutorId });
-    }
 }

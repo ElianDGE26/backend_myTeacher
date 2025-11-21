@@ -2,6 +2,7 @@ import { BookingModel } from "../models/bookingModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IBookingRepository, Booking } from "../types/bookingsTypes";
 import { Types } from "mongoose";
+import { format } from "path";
 
 
 export class BookingRepository implements IBookingRepository{
@@ -37,53 +38,109 @@ export class BookingRepository implements IBookingRepository{
         return await BookingModel.countDocuments(query).exec();
     }
 
-    /* recuento de los estudiantes que han tenido al menos una tutoria en el mes y se hce una comparación con el mes anterior */
+    /* recuento de los estudiantes que han tenido al menos una tutoria en estado completada en el mes; 
+    En el servicio se utilizó tambien para hacer la comparación del mes actual con el mes anterior*/
     async recuentStudentsBookings(query: Query): Promise<number> {
         const Idtutor = query.tutorId;
         const datefilter = query.date;
-        const students = await BookingModel.distinct( "studentId", { tutorId: Idtutor, status: "Completada", date: datefilter} ); 
+
+        const students = await BookingModel.distinct( 
+            "studentId", { 
+                tutorId: Idtutor, 
+                status: "Completada", 
+                date: datefilter
+            } 
+        ); 
+
         return students.length; 
     }
 
 
+    /* función para tener el recuento de estudiante agrupados por cada dia del mes actual de los estudiantes que han tenido una reserva en estado completada  */
     async recuentStudentsForDays(query: Query): Promise<{ day: number; count: number; }[]> {
-        const id  = query.idTutor;
+        const id  = new Types.ObjectId(query.tutorId as string); // Aseguramos ObjectId
         const now = new Date();
         const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); //dia inicial del mes
-        const endOfMonthh = new Date(now.getFullYear(), now.getMonth()+ 1, 0, 23, 59, 59, 999);  // 
-        
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth()+ 1, 0, 23, 59, 59, 999);  // dia final del mes
+        console.log('id :>> ', id);
+        console.log('startOfMonth :>> ', startOfMonth);
+        console.log('endOfMonthh :>> ', endOfMonth);
 
         const result = await BookingModel.aggregate([
-            {
-                $match: {
-                    tutorId: id,
-                    status: "Completada",
-                    date: { $gte: startOfMonth, $lte: endOfMonthh} // filtrar por mes actual
-                }
-            },
-            {
-                $group: {
-                    _id: { $dayOfMonth: "$date"},  // agrupar por día del mes
-                    students: { $addToSet: "$studentId"} // tomar solo estudiantes únicos
-                }
-            },
-            {
-                $project: {
-                    day: "$_id",
-                    count: { $size: "$students"},
-                    _id: 0
-                }
-            },
-            {
-                $sort: {
-                    dat:1
-                }
+        {
+            $match: {
+                tutorId: id,
+                status: "Completada",
+                date: { $gte: startOfMonth, $lte: endOfMonth }
             }
-        ]);
+        },
+        {
+            $group: {
+                _id: { $dayOfMonth: "$date" },
+                students: { $addToSet: "$studentId" }
+            }
+        },
+        {
+            $project: {
+                day: "$_id",
+                count: { $size: "$students" },
+                _id: 0
+            }
+        },
+        { $sort: { day: 1 } }
+    ]);
         
         return result; // Devuelve algo como [{ day: 1, count: 3 }, { day: 2, count: 5 }, ...]
     }
 
+    /** Funcion para traer los dos  */
+    async nextBooking(tutorId: Types.ObjectId | string, status: string): Promise<any[]> {
+        const now = new Date();
 
+        const bookings = await BookingModel.aggregate([
+            {
+                $match: {
+                    tutorId: new Types.ObjectId(tutorId),
+                    status: status
+                }
+            },
+            {
+                $addFields: {
+                    startDateTime: {
+                        $dateFromString: {
+                            dateString: {
+                                $concat: [
+                                    { $dateToString: { date: "$dateObj", format: "%Y-%m-%d" } },
+                                    "T",
+                                    "$startTime",
+                                    ":00"
+                                ]
+                            }
+                        }
+                    }
+                }
+            },
+            {
+                $match: {
+                    startDateTime: { $gte: now }
+                }
+            },
+            { $sort: { startDateTime: 1 } },
+            { $limit: 2 },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "studentId",
+                    foreignField: "_id",
+                    as: "student"
+                }
+            },
+            { $unwind: "$student" }
+        ]);
+
+        return bookings;
+    };
+
+    
 
 }

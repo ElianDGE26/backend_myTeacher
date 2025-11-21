@@ -33,6 +33,7 @@ export class SubjectRepository implements ISubjectRepository{
         return await SubjectModel.findOne(query).exec();
     }
 
+    /**Funcion para obetener las materias con la información del tutor para hacer una reserva */
     async findTeachersBySubject(query?: Query): Promise<any[]> {
 
         let subjectName = (query?.name as string) || "";
@@ -40,17 +41,13 @@ export class SubjectRepository implements ISubjectRepository{
 
         // Normalizamos la palabra a buscar (quitamos tildes y pasamos a minúsculas)
         const normalized = subjectName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-
-       // console.log('query :>> ', normalized);
-        const allSubjects = await SubjectModel.find().populate('tutorId', '-password').lean();
+        const allSubjects = await SubjectModel.find().populate('tutorId', '-password').lean(); //traemos las materias con la información del tutor sin la contraseña; y limpiamos
 
 
         const filtered = allSubjects.filter(s => 
             s.name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
             .includes(normalized)
         );
-
-        //console.log('filtered :>> ', filtered);
 
         return filtered;
 

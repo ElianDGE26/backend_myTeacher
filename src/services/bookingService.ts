@@ -4,6 +4,7 @@ import { Query } from "../types/reporsitoryTypes";
 import { BookingRepository } from "../repositories/bookingRepositories";
 import { IUserRepository } from "../types/usersTypes";
 import { error } from "console";
+import { throwDeprecation } from "process";
 
 
 export class BookingService implements IBookingService {
@@ -14,6 +15,7 @@ export class BookingService implements IBookingService {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
     }
+
 
     async countBookingsBystatus(tutorId: Types.ObjectId, status: string, date: Date): Promise<number> {
         return await this.bookingRepository.countByDocuments({ tutorId, status, date});
@@ -43,15 +45,42 @@ export class BookingService implements IBookingService {
         return await this.bookingRepository.delete(id);
     } 
 
-    async getStudentsByTutorBooking(id: Types.ObjectId): Promise<{day: number, count: number}[]> {
+    /** Servicio para obtener la cantidad de estudiantes por cada dia del mes en el que se hizo una tutoria completa */
+    async getStudentsByTutorBooking(tutorId: Types.ObjectId): Promise<{day: number, count: number}[]> {
 
-        const tutorExist = this.userRepository.findById(id);
+        const tutorExist = this.userRepository.findById(tutorId);
 
         if (!tutorExist){
             throw new Error ("Tutor no found");
         }
 
-        const result = await this.bookingRepository.recuentStudentsForDays({ id });
+        const result = await this.bookingRepository.recuentStudentsForDays({ tutorId });
+        console.log('result1 :>> ', result);
+
+        if(!result || result.length == 0) {
+            return [];
+        }
+
+        return result;
+    }
+
+
+    async getNextTwoBookingsForTutor(tutorId: Types.ObjectId, status: String): Promise<any[]> {
+        
+        if(!tutorId || !status){
+            throw new Error("Error obtaining the required parameters");
+        }
+
+        if(!await this.userRepository.findById(tutorId)){
+            throw new Error("User not found");
+        }
+
+        const result = await this.bookingRepository.nextBooking(tutorId, status);
+        console.log('result :>> ', result);
+
+        if(!result || result.length == 0) {
+            return [];
+        }
 
         return result;
     }

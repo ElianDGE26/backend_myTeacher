@@ -8,7 +8,7 @@ const router = Router();
 router.get("/", verifyToken, getAllBookings);
 router.get("/:id", verifyToken, getBookingByid);
 router.get("/count/student-bookings/:userId", verifyToken, bookingsByStudentsId);
-router.get("/count/tutor-bookings/:userId", verifyToken, bookingsByTutorId);
+router.get("/count/tutor-bookings/:tutorId", verifyToken, bookingsByTutorId);
 router.get("/countStudents-bookingsByTutor/:tutorId", getCountStudentsTheBookingForTutor);
 //Rutas Post
 router.post("/create", verifyToken, createBooking);

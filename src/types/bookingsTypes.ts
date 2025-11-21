@@ -21,6 +21,7 @@ export interface IBookingRepository extends Repository<Booking> {
     countByDocuments(query: Query): Promise<number>;
     recuentStudentsBookings(query: Query): Promise<number>;
     recuentStudentsForDays(query: Query): Promise<{day: number, count: number}[]>;
+    nextBooking(tutorId: Types.ObjectId, status: String): Promise<any[]>;
 }
 
 export interface IBookingService { 
@@ -31,5 +32,6 @@ export interface IBookingService {
     deleteBookingById(id: Types.ObjectId): Promise<boolean>;
     countBookingsBystatus(tutorId: Types.ObjectId, status: string, date: Date): Promise<number>;
     recuentStudentsBookings(query: Query): Promise<number>;
-    getStudentsByTutorBooking(id: Types.ObjectId): Promise<{day: number, count: number}[]>;
+    getStudentsByTutorBooking(tutorId: Types.ObjectId): Promise<{day: number, count: number}[]>;
+    getNextTwoBookingsForTutor(tutorId: Types.ObjectId, status: String): Promise<any[]>;
 }

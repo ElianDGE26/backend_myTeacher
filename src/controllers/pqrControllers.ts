@@ -12,10 +12,6 @@ export const getAllPqrs = async (req: Request, res: Response) => {
   try {
     const result = await pqrService.findAllPqrs();
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "No Pqrs found" });
-    }
-
     res.json(result);
   } catch (error) {
     console.error("Error fetching Pqrs:", error);

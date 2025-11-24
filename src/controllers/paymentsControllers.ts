@@ -19,10 +19,6 @@ export const getAllPayments = async (req: Request, res: Response) => {
   try {
     const result = await paymentService.findAllPayments();
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "No Payments found" });
-    }
-
     res.json(result);
   } catch (error) {
     console.error("Error fetching Payments:", error);
@@ -43,9 +39,7 @@ export const getPaymentByid = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "Invalid Booking Id" });
     }
 
-    const result = await paymentService.findPaymentById(
-      new mongoose.Types.ObjectId(id)
-    );
+    const result = await paymentService.findPaymentById(new mongoose.Types.ObjectId(id));
 
     if (!result) {
       return res.status(404).json({ message: "No Payment found" });
@@ -127,40 +121,6 @@ export const deletePaymentByid = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
-
-/*estadisticas del profesor como cuantas reservas, cuanto dinero le ingresó, cuantas totiras fueron canceladas del mes actual comparadas con las del mes anterior
-export const getStats = async (req: Request, res: Response) => {
-  try {
-    const { tutorId } = req.params;
-
-    if (!tutorId) {
-      return res.status(400).json({ message: "Missing tutor ID in params" });
-    }
-
-    //se valida que el id si sea de tipo Object ID
-    if (!mongoose.Types.ObjectId.isValid(tutorId))  {
-        return res.status(404).json({ message: "Invalid Booking Id"})
-    }
-
-    const stats = await paymentService.totalTutorsStats(new mongoose.Types.ObjectId(tutorId));
-
-    const student = await bookingService.getStudentsByTutorBooking(new mongoose.Types.ObjectId(tutorId));
-
-    const nextBookings = await bookingService.getNextTwoBookingsForTutor(new mongoose.Types.ObjectId(tutorId), "Aceptada");
-
-
-    res.status(200).json({ message: "Teacher statistics retrieved successfully",
-      stats: stats,
-      students: student,
-      nextBookings: nextBookings
-    });
-
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error retrieving statistics" });
-  }
-};*/
 
 export const getStats = async (req: Request, res: Response) => {
   try {

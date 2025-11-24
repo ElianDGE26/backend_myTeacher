@@ -15,6 +15,11 @@ export class BookingService implements IBookingService {
         this.bookingRepository = bookingRepository;
         this.userRepository = userRepository;
     }
+    
+    async findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number; })[]> {
+       const result = await this.bookingRepository.findAllWithReviewCount(query);
+        return result;
+    }
 
 
     async countBookingsBystatus(tutorId: Types.ObjectId, status: string, date: Date): Promise<number> {
@@ -30,8 +35,11 @@ export class BookingService implements IBookingService {
     }
 
     async findAllBookings (query?: Query): Promise<Booking[]> {
-        return await this.bookingRepository.findAll(query);
+        const result = await this.bookingRepository.findAll(query);
+        return result;
     }
+
+    
 
     async findBookingById (id: Types.ObjectId): Promise<Booking | null> {
         return await this.bookingRepository.findById(id);
@@ -48,7 +56,7 @@ export class BookingService implements IBookingService {
     /** Servicio para obtener la cantidad de estudiantes por cada dia del mes en el que se hizo una tutoria completa */
     async getStudentsByTutorBooking(tutorId: Types.ObjectId): Promise<{day: number, count: number}[]> {
 
-        const tutorExist = this.userRepository.findById(tutorId);
+        const tutorExist = await this.userRepository.findById(tutorId);
 
         if (!tutorExist){
             throw new Error ("Tutor no found");

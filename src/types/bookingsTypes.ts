@@ -22,6 +22,7 @@ export interface IBookingRepository extends Repository<Booking> {
     recuentStudentsBookings(query: Query): Promise<number>;
     recuentStudentsForDays(query: Query): Promise<{day: number, count: number}[]>;
     nextBooking(tutorId: Types.ObjectId, status: String): Promise<any[]>;
+    findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number })[]>;
 }
 
 export interface IBookingService { 
@@ -34,4 +35,5 @@ export interface IBookingService {
     recuentStudentsBookings(query: Query): Promise<number>;
     getStudentsByTutorBooking(tutorId: Types.ObjectId): Promise<{day: number, count: number}[]>;
     getNextTwoBookingsForTutor(tutorId: Types.ObjectId, status: String): Promise<any[]>;
+    findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number })[]>;
 }

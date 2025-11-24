@@ -15,10 +15,6 @@ export const getAllReviews = async (req: Request, res: Response) => {
   try {
     const result = await reviewService.findAllReviews();
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "No Reviews found" });
-    }
-
     res.json(result);
   } catch (error) {
     console.error("Error fetching Reviews:", error);

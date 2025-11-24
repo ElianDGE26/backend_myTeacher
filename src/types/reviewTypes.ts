@@ -9,6 +9,7 @@ export interface Review extends Document {
 
 export interface IReviewRepository extends Repository<Review> {
     findOne(query: Query): Promise<Review | null>;
+    count(query: Query): Promise<number>;
 }
 
 export interface IReviewService {
@@ -17,4 +18,5 @@ export interface IReviewService {
     findReviewById(id: Types.ObjectId): Promise<Review | null>;
     updateReviewById(id: Types.ObjectId, review: Partial<Review>): Promise<Review | null>;
     deleteReviewById(id: Types.ObjectId): Promise<boolean>;
+    countReviewsByBooking(id: Types.ObjectId): Promise<number>;
 }   

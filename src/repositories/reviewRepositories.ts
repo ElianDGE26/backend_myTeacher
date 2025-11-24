@@ -5,7 +5,11 @@ import { Types } from "mongoose";
 
 
 export class ReviewRepository implements IReviewRepository{
-
+    
+    
+    async count(query: Query): Promise<number> {
+       return await ReviewModel.countDocuments(query).exec();
+    }
 
     async create(data: Review): Promise<Review> {
         const newReview = new ReviewModel(data);

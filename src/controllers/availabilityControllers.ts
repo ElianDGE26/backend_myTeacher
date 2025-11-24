@@ -14,10 +14,6 @@ export const getAllAvailabilities = async (req: Request, res: Response) => {
 
         const result =  await availabilityService.findAllAvailabilities();
 
-        if (result.length === 0) {
-            return res.status(404).json({ message: "No Availabilitys found" });
-        }
-
         res.json(result);
         
     } catch (error) {

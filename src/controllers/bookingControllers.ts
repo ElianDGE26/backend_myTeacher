@@ -13,15 +13,20 @@ const bookingService: IBookingService = new BookingService(bookingRepository, us
 
 
 
+export const getAllBookingsWithReviewCounts = async (req: Request, res: Response) => {
+    try {
+        const result =  await bookingService.findAllWithReviewCount();
+        res.json(result);
+        
+    } catch (error) {
+        console.error("Error fetching Bookings:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
 export const getAllBookings = async (req: Request, res: Response) => {
     try {
-
         const result =  await bookingService.findAllBookings();
-
-        if (result.length === 0) {
-            return res.status(404).json({ message: "No Bookings found" });
-        }
-
         res.json(result);
         
     } catch (error) {
@@ -168,7 +173,7 @@ export const bookingsByTutorId = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Invalid Booking Id"})
         }
 
-        const resutlt = await bookingService.findAllBookings({ tutorId: new mongoose.Types.ObjectId(tutorId)});
+        const resutlt = await bookingService.findAllWithReviewCount({ tutorId: new mongoose.Types.ObjectId(tutorId)});
 
         if( !resutlt || resutlt.length === 0 ){
             return  res.status(404).json( { message: "No bookings found for the given tutor ID"} );

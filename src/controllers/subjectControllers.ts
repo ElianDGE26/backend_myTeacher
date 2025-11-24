@@ -16,10 +16,6 @@ export const getAllSubjects = async (req: Request, res: Response) => {
     console.log("req :>> ", req.currentUser);
     const result = await subjectService.findAllSubjects();
 
-    if (result.length === 0) {
-      return res.status(404).json({ message: "No subjects found" });
-    }
-
     res.json(result);
   } catch (error) {
     console.error("Error fetching Subjects:", error);

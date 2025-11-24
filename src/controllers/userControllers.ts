@@ -15,10 +15,6 @@ export const getAllUsers = async (req: Request, res: Response) => {
 
         const result =  await userService.findAllUsers();
 
-        if (result.length === 0) {
-            return res.status(404).json({ message: "No users found" });
-        }
-
         res.json(result);
         
     } catch (error) {
@@ -92,11 +88,13 @@ export const updateUserByid = async (req: Request, res: Response) => {
       }
 
       const result = await userService.updateUserById(new mongoose.Types.ObjectId(id), userUpdate);
+
       if (!result) {
         return res.status(500).json({ message: "error updating user" });
       }
 
       res.json(result);
+      
     } catch (error) {
         console.error("Error fetching users:", error);
         res.status(500).json({ message: "Internal server error" });

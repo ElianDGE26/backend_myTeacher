@@ -74,23 +74,24 @@ export class PaymentsService implements IPaymentsService {
   }
 
   async createPayment(payment: Payments): Promise<Payments> {
-    return this.paymentsRepository.create(payment);
+    return await this.paymentsRepository.create(payment);
   }
 
   async findAllPayments(query?: Query): Promise<Payments[]> {
-    return this.paymentsRepository.findAll(query);
+    
+    return await this.paymentsRepository.findAll(query);
   }
 
   async findPaymentById(id: Types.ObjectId): Promise<Payments | null> {
-    return this.paymentsRepository.findById(id);
+    return await this.paymentsRepository.findById(id);
   }
 
   async updatePaymentById( id: Types.ObjectId, payment: Partial<Payments>): Promise<Payments | null> {
-    return this.paymentsRepository.update(id, payment);
+    return await this.paymentsRepository.update(id, payment);
   }
 
   async deletePaymentById(id: Types.ObjectId): Promise<boolean> {
-    return this.paymentsRepository.delete(id);
+    return await this.paymentsRepository.delete(id);
   }
 
 

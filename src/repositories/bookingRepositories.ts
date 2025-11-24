@@ -22,10 +22,7 @@ export class BookingRepository implements IBookingRepository {
     return await BookingModel.findById(id).exec();
   }
 
-  async update(
-    id: Types.ObjectId,
-    data: Partial<Booking>
-  ): Promise<Booking | null> {
+  async update( id: Types.ObjectId, data: Partial<Booking>): Promise<Booking | null> {
     return await BookingModel.findByIdAndUpdate(id, data, { new: true }).exec();
   }
 
@@ -208,5 +205,73 @@ export class BookingRepository implements IBookingRepository {
 
     console.log('bookings :>> ', bookings);
     return bookings;
+  }
+
+
+  async findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number })[]> {
+    return BookingModel.aggregate([
+      { $match: query || {} },
+
+      // Lookup para traer info del estudiante
+      {
+        $lookup: {
+          from: "users", // nombre de la colección de estudiantes
+          localField: "studentId",
+          foreignField: "_id",
+          as: "student"
+        }
+      },
+      { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+
+      // Lookup para traer info de la materia
+      {
+        $lookup: {
+          from: "subjects", // nombre de la colección de materias
+          localField: "subjectId",
+          foreignField: "_id",
+          as: "subject"
+        }
+      },
+      { $unwind: { path: "$subject", preserveNullAndEmptyArrays: true } },
+
+      // Lookup para contar reviews
+      {
+        $lookup: {
+          from: "reviews",
+          localField: "_id",
+          foreignField: "bookingId",
+          as: "reviews"
+        }
+      },
+      {
+        $addFields: {
+          reviewsCount: { $size: "$reviews" }
+        }
+      },
+
+      // Limpiar arrays innecesarios
+      {
+        $project: {
+        _id: 1,
+        tutorId:1,
+        type: 1,
+        location: 1,
+        status: 1,
+        date: 1,
+        startTime: 1,
+        endTime: 1,
+        price: 1,
+        student: {
+            _id: 1,
+            name: 1,
+        },
+        subject: {
+            _id: 1,
+            name: 1,
+        },
+        reviewsCount: 1
+        }
+      }
+    ]);
   }
 }

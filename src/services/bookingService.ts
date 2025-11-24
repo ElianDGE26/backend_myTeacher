@@ -4,7 +4,7 @@ import { Query } from "../types/reporsitoryTypes";
 import { BookingRepository } from "../repositories/bookingRepositories";
 import { IUserRepository } from "../types/usersTypes";
 import { error } from "console";
-import { throwDeprecation } from "process";
+import CustomError from "../utils/CustomError";
 
 
 export class BookingService implements IBookingService {
@@ -55,9 +55,13 @@ export class BookingService implements IBookingService {
         }
 
         const result = await this.bookingRepository.recuentStudentsForDays({ tutorId });
-        console.log('result1 :>> ', result);
+        //console.log('result1 :>> ', result);
 
-        if(!result || result.length == 0) {
+        if (result === undefined) {
+            throw new Error("Result es undefined");
+        }
+
+        if(result.length == 0) {
             return [];
         }
 
@@ -66,19 +70,19 @@ export class BookingService implements IBookingService {
 
 
     async getNextTwoBookingsForTutor(tutorId: Types.ObjectId, status: String): Promise<any[]> {
-        
-        if(!tutorId || !status){
-            throw new Error("Error obtaining the required parameters");
-        }
 
         if(!await this.userRepository.findById(tutorId)){
             throw new Error("User not found");
         }
 
         const result = await this.bookingRepository.nextBooking(tutorId, status);
-        console.log('result :>> ', result);
+        //console.log('result :>> ', result);
 
-        if(!result || result.length == 0) {
+        if (result === undefined) {
+            throw new Error("Result es undefined");
+        }
+
+        if(result.length == 0) {
             return [];
         }
 

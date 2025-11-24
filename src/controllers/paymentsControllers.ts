@@ -1,13 +1,8 @@
-import {
-  IPaymentsRepository,
-  IPaymentsService,
-  Payments,
-} from "../types/paymentsTypes";
-import {
-  IBookingRepository,
-  IBookingService,
-  Booking,
-} from "../types/bookingsTypes";
+import {   IPaymentsRepository,   IPaymentsService,   Payments, } from "../types/paymentsTypes";
+import { IBookingRepository,  IBookingService, Booking, } from "../types/bookingsTypes";
+import { BookingService } from "../services/bookingService";
+import { IUserRepository } from "../types/usersTypes";
+import { UserRepository } from "../repositories/userRepositories";
 import { PaymentsRepository } from "../repositories/paymentsRepositories";
 import { BookingRepository } from "../repositories/bookingRepositories";
 import { PaymentsService } from "../services/paymentsService";
@@ -16,10 +11,9 @@ import mongoose, { Types } from "mongoose";
 
 const paymentRepository: IPaymentsRepository = new PaymentsRepository();
 const bookingRepository: IBookingRepository = new BookingRepository();
-const paymentService: IPaymentsService = new PaymentsService(
-  paymentRepository,
-  bookingRepository
-);
+const paymentService: IPaymentsService = new PaymentsService( paymentRepository, bookingRepository );
+const userRepository: IUserRepository = new UserRepository();
+const bookingService: IBookingService = new BookingService(bookingRepository, userRepository);
 
 export const getAllPayments = async (req: Request, res: Response) => {
   try {
@@ -134,7 +128,7 @@ export const deletePaymentByid = async (req: Request, res: Response) => {
   }
 };
 
-/*estadisticas del profesor como cuantas reservas, cuanto dinero le ingresó, cuantas totiras fueron canceladas del mes actual comparadas con las del mes anterior*/
+/*estadisticas del profesor como cuantas reservas, cuanto dinero le ingresó, cuantas totiras fueron canceladas del mes actual comparadas con las del mes anterior
 export const getStats = async (req: Request, res: Response) => {
   try {
     const { tutorId } = req.params;
@@ -142,16 +136,75 @@ export const getStats = async (req: Request, res: Response) => {
     if (!tutorId) {
       return res.status(400).json({ message: "Missing tutor ID in params" });
     }
-    const stats = await paymentService.totalTutorsStats(
-      new mongoose.Types.ObjectId(tutorId)
-    );
 
-    res.status(200).json({
-      message: "Teacher statistics retrieved successfully",
-      data: stats,
+    //se valida que el id si sea de tipo Object ID
+    if (!mongoose.Types.ObjectId.isValid(tutorId))  {
+        return res.status(404).json({ message: "Invalid Booking Id"})
+    }
+
+    const stats = await paymentService.totalTutorsStats(new mongoose.Types.ObjectId(tutorId));
+
+    const student = await bookingService.getStudentsByTutorBooking(new mongoose.Types.ObjectId(tutorId));
+
+    const nextBookings = await bookingService.getNextTwoBookingsForTutor(new mongoose.Types.ObjectId(tutorId), "Aceptada");
+
+
+    res.status(200).json({ message: "Teacher statistics retrieved successfully",
+      stats: stats,
+      students: student,
+      nextBookings: nextBookings
     });
+
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error retrieving statistics" });
+  }
+};*/
+
+export const getStats = async (req: Request, res: Response) => {
+  try {
+    const { tutorId } = req.params;
+
+    if (!tutorId) {
+      return res.status(400).json({ message: "Missing tutor ID in params" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(tutorId)) {
+      return res.status(404).json({ message: "Invalid Tutor Id" });
+    }
+
+    const id = new mongoose.Types.ObjectId(tutorId);
+
+    // Ejecutar todas las promesas SIN romper ejecución usando allSettled
+    const results = await Promise.allSettled([
+      paymentService.totalTutorsStats(id),
+      bookingService.getStudentsByTutorBooking(id),
+      bookingService.getNextTwoBookingsForTutor(id, "Aceptada")
+    ]);
+
+    const [statsResult, studentsResult, nextBookingsResult] = results;
+
+    const response = {
+      message: "Teacher statistics retrieved",
+      stats: statsResult.status === "fulfilled" ? statsResult.value : null,
+      //statsError: statsResult.status === "rejected" ? statsResult.reason.message : null,
+
+      students: studentsResult.status === "fulfilled" ? studentsResult.value : null,
+      //studentsError: studentsResult.status === "rejected" ? studentsResult.reason.message : null,
+
+      nextBookings:
+        nextBookingsResult.status === "fulfilled" ? nextBookingsResult.value : null,
+      //nextBookingsError: nextBookingsResult.status === "rejected" ? nextBookingsResult.reason.message : null
+    };
+
+    return res.status(200).json(response);
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Unexpected error retrieving statistics",
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
   }
 };

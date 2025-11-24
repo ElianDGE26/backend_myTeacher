@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { IUserRepository } from "../types/usersTypes";
 import { UserRepository } from "../repositories/userRepositories";
 import mongoose, { Types } from "mongoose";
+import CustomError from "../utils/CustomError";
 
 const bookingRepository: IBookingRepository = new BookingRepository();
 const userRepository: IUserRepository = new UserRepository();
@@ -216,6 +217,9 @@ export const getCountStudentsTheBookingForTutor = async (req:Request, res:Respon
         });
         
     }catch (error) {
+        if (error instanceof CustomError) {
+            return res.status(error.status).json({ message: error.message });
+        }
         console.log("Error counting students who made reservations with tutor : >>>> ", error);
         res.status(500).json({ message: "Error counting students who made reservations with tutor "} );
     }

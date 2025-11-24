@@ -28,14 +28,12 @@ export class PaymentsService implements IPaymentsService {
     studentsLastPerium: number;
     incomeLastPerium: number;
     canceledClassesLastPerium: number;
-    pendingRequestsLastPerium: number;
     diferenceIncomePercentage: number;
     diferenceStudents: number;
     diferenceCanceledClasses: number;
-    diferencePendingRequests: number;
   }> {
 
-    const today = new Date(2025,10,30);
+    const today = new Date();
 
     const startOfCurrentMonth = startOfMonth(today); // obtenemos el inicio del mes actual
     const endOfCurrentMonth = today; // dia de la consulta
@@ -54,7 +52,7 @@ export class PaymentsService implements IPaymentsService {
     //calculos
     const [
       [students, income, canceledClasses, pendingRequests], 
-      [studentsLastPerium, incomeLastPerium, canceledClassesLastPerium, pendingRequestsLastPerium]
+      [studentsLastPerium, incomeLastPerium, canceledClassesLastPerium]
     ] =
       await Promise.all([
         this.getStatsForPeriod(tutorId, startOfCurrentMonth, endOfCurrentMonth),
@@ -64,12 +62,11 @@ export class PaymentsService implements IPaymentsService {
       const diferenceIncomePercentage = Math.round(incomeLastPerium === 0 ? 100 : ((income - incomeLastPerium) / incomeLastPerium) * 100);
       const diferenceStudents = students - studentsLastPerium;
       const diferenceCanceledClasses = canceledClasses - canceledClassesLastPerium;
-      const diferencePendingRequests = pendingRequests - pendingRequestsLastPerium;
 
     return {
       students, income, canceledClasses, pendingRequests,
-      studentsLastPerium, incomeLastPerium, canceledClassesLastPerium, pendingRequestsLastPerium,
-      diferenceIncomePercentage, diferenceStudents, diferenceCanceledClasses, diferencePendingRequests
+      studentsLastPerium, incomeLastPerium, canceledClassesLastPerium,
+      diferenceIncomePercentage, diferenceStudents, diferenceCanceledClasses
     };
   }
 
@@ -101,11 +98,12 @@ export class PaymentsService implements IPaymentsService {
    *  - Total de tutorias canceladas y pendientes.
    */
   async getStatsForPeriod (tutorId: Types.ObjectId, startDate: Date, endDate: Date)  {
+    const today = new Date()
     return Promise.all([
       this.bookingRepository.recuentStudentsBookings({ tutorId, date: { $gte: startDate, $lte: endDate }}),
       this.paymentsRepository.totalIncomeByTutor({ tutorId, date: { $gte: startDate, $lte: endDate }}),
       this.bookingRepository.countByDocuments({ tutorId, status: "Cancelada",date: { $gte: startDate, $lte: endDate }}),
-      this.bookingRepository.countByDocuments({ tutorId, status: "Pendiente", date: { $gte: startDate, $lte: endDate }}),
+      this.bookingRepository.countByDocuments({ tutorId, status: "Pendiente", date: { $gte: today, $lte: endDate }}),
     ]);
   }
 

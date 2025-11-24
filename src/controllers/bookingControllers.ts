@@ -145,7 +145,7 @@ export const bookingsByStudentsId = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Invalid Booking Id"})
         }
 
-        const resutlt = await bookingService.findAllBookings({ studentId: new mongoose.Types.ObjectId(userId)});
+        const resutlt = await bookingService.findAllWithReviewCount({ studentId: new mongoose.Types.ObjectId(userId)});
 
         if( !resutlt || resutlt.length === 0 ){
             return  res.status(404).json( { message: "No bookings found for the given student ID"} );

@@ -79,7 +79,12 @@ export class BookingRepository implements IBookingRepository {
           // filtrar por rango
           date: { $gte: startOfMonthUTC, $lte: endOfMonthUTC },
           // comparar status de forma case-insensitive (evita problemas si hay "completada", "Completada", etc.)
-          $expr: { $eq: [{ $toLower: "$status" }, "completada"] },
+          $expr: {
+            $in: [
+              { $toLower: "$status" },
+              ["completada", "aceptada"]
+            ]
+          },
         },
       },
       {
@@ -104,10 +109,19 @@ export class BookingRepository implements IBookingRepository {
       { $sort: { day: 1 } },
     ]);
 
-    const ordered = result.map((r) => ({
-      day: r.day,
-      count: r.count,
-    }));
+      const totalDias = endOfMonthUTC.getUTCDate(); // último día del mes (28–31)
+
+      const filled = Array.from({ length: totalDias }, (_, i) => {
+        const day = i + 1;
+        const found = result.find(r => r.day === day);
+
+        return {
+          day,
+          count: found ? found.count : 0
+        };
+      });
+
+      return filled;  // Devuelve algo como [{ day: 1, count: 3 }, { day: 2, count: 5 }, ...]
 
     //console.log("📌 FINAL RESULT (UTC-aware) >> ", result);
 
@@ -120,7 +134,6 @@ export class BookingRepository implements IBookingRepository {
       }).lean()
     ); */
 
-    return ordered; // Devuelve algo como [{ day: 1, count: 3 }, { day: 2, count: 5 }, ...]
   }
 
   /** Funcion para traer las dos tutorias proximas*/
@@ -191,6 +204,7 @@ export class BookingRepository implements IBookingRepository {
         endTime: 1,
         price: 1,
         startDateTime: 1,
+        videoCallLink:1,
         student: {
             _id: 1,
             name: 1,
@@ -260,6 +274,7 @@ export class BookingRepository implements IBookingRepository {
         date: 1,
         startTime: 1,
         endTime: 1,
+        videoCallLink:1,
         price: 1,
         student: {
             _id: 1,

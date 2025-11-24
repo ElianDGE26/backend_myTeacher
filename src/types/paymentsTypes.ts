@@ -30,10 +30,8 @@ export interface IPaymentsService {
     studentsLastPerium: number;
     incomeLastPerium: number;
     canceledClassesLastPerium: number;
-    pendingRequestsLastPerium: number;
     diferenceIncomePercentage: number;
     diferenceStudents: number;
     diferenceCanceledClasses: number;
-    diferencePendingRequests: number;
 }>
 }

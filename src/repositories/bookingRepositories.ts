@@ -236,7 +236,15 @@ export class BookingRepository implements IBookingRepository {
         }
       },
       { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
-
+      {
+        $lookup: {
+          from: "users", // nombre de la colección de estudiantes
+          localField: "tutorId",
+          foreignField: "_id",
+          as: "tutor"
+        }
+      },
+      { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
       // Lookup para traer info de la materia
       {
         $lookup: {
@@ -276,6 +284,10 @@ export class BookingRepository implements IBookingRepository {
         endTime: 1,
         videoCallLink:1,
         price: 1,
+        tutor: {
+          _id: 1,
+          name: 1,
+        },
         student: {
             _id: 1,
             name: 1,

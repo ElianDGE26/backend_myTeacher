@@ -244,7 +244,7 @@ export class BookingRepository implements IBookingRepository {
           as: "tutor"
         }
       },
-      { $unwind: { path: "$student", preserveNullAndEmptyArrays: true } },
+      { $unwind: { path: "$tutor", preserveNullAndEmptyArrays: true } },
       // Lookup para traer info de la materia
       {
         $lookup: {
@@ -289,8 +289,8 @@ export class BookingRepository implements IBookingRepository {
           name: 1,
         },
         student: {
-            _id: 1,
-            name: 1,
+          _id: 1,
+          name: 1,
         },
         subject: {
             _id: 1,

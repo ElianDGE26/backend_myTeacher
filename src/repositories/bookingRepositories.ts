@@ -1,7 +1,7 @@
 import { BookingModel } from "../models/bookingModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IBookingRepository, Booking } from "../types/bookingsTypes";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { format } from "path";
 
 
@@ -22,8 +22,8 @@ export class BookingRepository implements IBookingRepository {
     return await BookingModel.findById(id).exec();
   }
 
-  async update( id: Types.ObjectId, data: Partial<Booking>): Promise<Booking | null> {
-    return await BookingModel.findByIdAndUpdate(id, data, { new: true }).exec();
+  async update( id: Types.ObjectId, data: Partial<Booking>, session: mongoose.ClientSession | null = null): Promise<Booking | null> {
+    return await BookingModel.findByIdAndUpdate(id, data, { new: true, session }).exec();
   }
 
   async delete(id: Types.ObjectId): Promise<boolean> {

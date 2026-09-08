@@ -2,15 +2,15 @@ import { PaymentModel } from "../models/paymentsModels";
 import { BookingModel } from "../models/bookingModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IPaymentsRepository, Payments } from "../types/paymentsTypes";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
 
 export class PaymentsRepository implements IPaymentsRepository{
 
 
-    async create(data: Payments): Promise<Payments> {
+    async create(data: Partial<Payments> | Payments, session: mongoose.ClientSession | null = null): Promise<Payments> {
         const newPayment = new PaymentModel(data);
-        return await newPayment.save();
+        return await newPayment.save({session});
     }
 
     async findAll(query?: Query): Promise<Payments[]> {

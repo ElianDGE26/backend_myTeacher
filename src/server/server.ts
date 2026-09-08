@@ -1,5 +1,5 @@
 import express  from "express";
-import connectionDb from "../config/ConnectionDb";
+import connectionDb from "../config/connectionDb";
 import config from "../config/config";
 import userRoutes from "../routes/userRoutes";
 import subjectRoutes from "../routes/subjectRoutes";
@@ -8,7 +8,9 @@ import availabilityRoutes from "../routes/availabilityRoutes";
 import bookingRoutes from "../routes/bookingRoutes";
 import paymentsRoutes from "../routes/paymentsRoutes";
 import reviewRoutes from "../routes/reviewRoutes";
+import mercadoPagoRoutes from "../routes/mercadoPagoRoutes";
 import cors from 'cors';
+import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 
 class Server {
@@ -65,6 +67,7 @@ class Server {
         this.app.use('/api/reviews', reviewRoutes);
         this.app.use('/api/payments', paymentsRoutes);
         this.app.use('/api/bookings', bookingRoutes);
+        this.app.use('/api/mercadopago', mercadoPagoRoutes);
     }
 }
 

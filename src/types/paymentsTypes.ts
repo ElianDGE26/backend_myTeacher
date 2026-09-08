@@ -1,10 +1,10 @@
-import { Document, Types } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 import { Repository, Query} from "./reporsitoryTypes";
 
 
 export interface Payments extends Document {
     bookingId: Types.ObjectId;
-    method: "Terjeta" | "Transferencia bancaria" | "Paypal";
+    method: "Tarjeta" | "Transferencia bancaria" | "Paypal";
     status: "Pendiente" | "Pagada" | "Fallida";
     date: Date;
     currency: string;
@@ -14,6 +14,7 @@ export interface Payments extends Document {
 export interface IPaymentsRepository extends Repository<Payments> {
     findOne(query: Query): Promise<Payments | null>;
     totalIncomeByTutor(query: Query): Promise<number>;
+    create(payment: Partial<Payments> | Payments, session?: mongoose.ClientSession | null): Promise<Payments>;
 }
 
 export interface IPaymentsService { 

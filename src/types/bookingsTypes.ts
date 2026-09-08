@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import mongoose, { Document, Types } from "mongoose";
 import { Repository, Query} from "./reporsitoryTypes";
 
 
@@ -8,12 +8,13 @@ export interface Booking extends Document {
     subjectId: Types.ObjectId;
     type: 'virtual' | 'Presencial';
     location:string;
-    status: 'Pendiente' | 'Aceptada' | 'Rechazada' | 'Completada' | 'Cancelada';
+    status: 'Pendiente por aceptar' | 'Aceptada' | 'Rechazada' | 'Completada' | 'Cancelada' | 'Pendiente por pago';
     date: Date;
     startTime: string;
     endTime: string;
     videoCallLink?: string;
     price: number;
+    discount: number
 }
 
 export interface IBookingRepository extends Repository<Booking> {
@@ -23,6 +24,7 @@ export interface IBookingRepository extends Repository<Booking> {
     recuentStudentsForDays(query: Query): Promise<{day: number, count: number}[]>;
     nextBooking(tutorId: Types.ObjectId, status: String): Promise<any[]>;
     findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number })[]>;
+    update(id: Types.ObjectId, data: Partial<Booking>, session?: mongoose.ClientSession | null): Promise<Booking | null>;
 }
 
 export interface IBookingService { 

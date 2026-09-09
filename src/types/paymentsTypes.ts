@@ -19,7 +19,7 @@ export interface IPaymentsRepository extends Repository<Payments> {
 }
 
 export interface IPaymentsService { 
-    createPayment(payment: Payments): Promise<Payments>;
+    createPayment(payment: Partial<Payments> | Payments, session?: mongoose.ClientSession | null): Promise<Payments>;
     findAllPayments(query?: Query): Promise<Payments[]>;
     findPaymentById(id: Types.ObjectId): Promise<Payments | null>;
     updatePaymentById(id: Types.ObjectId, payment: Partial<Payments>): Promise<Payments | null>;

@@ -128,7 +128,7 @@ export const receiveWebhook = async (req: Request, res: Response) => {
         const objectIdBooking = new mongoose.Types.ObjectId(bookingId);
 
         // Revisamos si ya procesamos este pago
-        const existingBooking = await bookingRepository.findById(objectIdBooking);
+        const existingBooking = await bookingService.findBookingById(objectIdBooking);
         if (!existingBooking) {
             await session.abortTransaction();
             return res.status(404).send("Reserva no encontrada");
@@ -142,7 +142,7 @@ export const receiveWebhook = async (req: Request, res: Response) => {
 
         // 3. ATOMICIDAD (Transacciones): Ejecutamos las dos escrituras juntas
         // A. Actualizamos la reserva pasando la sesión
-        await bookingRepository.update(objectIdBooking, { status: "Pendiente por aceptar" }, session);
+        await bookingService.updateBookingById(objectIdBooking, { status: "Pendiente por aceptar" }, session);
 
         let paymentMethod: "Tarjeta" | "Transferencia bancaria" | "Paypal";
 
@@ -153,14 +153,15 @@ export const receiveWebhook = async (req: Request, res: Response) => {
         else {                                                      paymentMethod = "Tarjeta"; }
 
         // Creamos el registro del pago pasando la sesión
-        await paymentRepository.create({
+        await paymentService.createPayment({
             bookingId: objectIdBooking,
+            providerPaymentId: String(mpPayment.id),
             method: paymentMethod,
             status: "Pagada",
             date: new Date(mpPayment.date_approved || Date.now()),
             currency: mpPayment.currency_id || "COP",
             amount: mpPayment.transaction_amount || 0,
-        }, session);
+        } as any, session);
 
         // Si ambas operaciones fueron exitosas, hacemos el commit a la base de datos
         await session.commitTransaction();

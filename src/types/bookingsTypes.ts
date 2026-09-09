@@ -33,7 +33,7 @@ export interface IBookingService {
     createBooking(Booking: Booking): Promise<Booking>;
     findAllBookings(query?: Query): Promise<Booking[]>;
     findBookingById(id: Types.ObjectId): Promise<Booking | null>;
-    updateBookingById(id: Types.ObjectId, booking: Partial<Booking>): Promise<Booking | null>;
+    updateBookingById(id: Types.ObjectId, booking: Partial<Booking>, session?: mongoose.ClientSession | null): Promise<Booking | null>;
     deleteBookingById(id: Types.ObjectId): Promise<boolean>;
     countBookingsBystatus(tutorId: Types.ObjectId, status: string, date: Date): Promise<number>;
     recuentStudentsBookings(query: Query): Promise<number>;

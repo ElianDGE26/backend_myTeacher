@@ -1,4 +1,4 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { IBookingRepository, IBookingService, Booking } from "../types/bookingsTypes";
 import { Query } from "../types/reporsitoryTypes";
 import { IUserRepository } from "../types/usersTypes";
@@ -39,8 +39,8 @@ export class BookingService implements IBookingService {
         return await this.bookingRepository.findById(id);
     }
 
-    async updateBookingById (id: Types.ObjectId, booking: Partial<Booking>): Promise<Booking | null> {
-        return await this.bookingRepository.update(id, booking);
+    async updateBookingById (id: Types.ObjectId, booking: Partial<Booking>, session?: mongoose.ClientSession | null): Promise<Booking | null> {
+        return await this.bookingRepository.update(id, booking, session);
     }   
 
     async deleteBookingById (id: Types.ObjectId): Promise<boolean> {

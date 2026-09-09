@@ -6,7 +6,7 @@ import {
   Payments,
 } from "../types/paymentsTypes";
 import { Query } from "../types/reporsitoryTypes";
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 import { startOfMonth, min, lastDayOfMonth, subMonths, endOfMonth } from "date-fns"
 
 export class PaymentsService implements IPaymentsService {
@@ -70,8 +70,8 @@ export class PaymentsService implements IPaymentsService {
     };
   }
 
-  async createPayment(payment: Payments): Promise<Payments> {
-    return await this.paymentsRepository.create(payment);
+  async createPayment(payment: Partial<Payments> | Payments, session?: mongoose.ClientSession | null): Promise<Payments> {
+    return await this.paymentsRepository.create(payment, session);
   }
 
   async findAllPayments(query?: Query): Promise<Payments[]> {

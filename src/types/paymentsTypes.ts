@@ -4,6 +4,7 @@ import { Repository, Query} from "./reporsitoryTypes";
 
 export interface Payments extends Document {
     bookingId: Types.ObjectId;
+    providerPaymentId?: string;
     method: "Tarjeta" | "Transferencia bancaria" | "Paypal";
     status: "Pendiente" | "Pagada" | "Fallida";
     date: Date;

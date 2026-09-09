@@ -17,15 +17,13 @@ const paymentRepository: IPaymentsRepository = new PaymentsRepository();
 const bookingRepository: IBookingRepository = new BookingRepository();
 const paymentService: IPaymentsService = new PaymentsService(paymentRepository, bookingRepository);
 const userRepository: IUserRepository = new UserRepository();
-const userService: IUserService = new UserService(userRepository);
+const userService: IUserService = new UserService(userRepository);                  
 const bookingService: IBookingService = new BookingService(bookingRepository, userRepository);
 
 export const createPreference = async (req: Request, res: Response) => {
     try {
 
-
         const { bookingId } = req.body;
-
 
         if (!bookingId || !mongoose.Types.ObjectId.isValid(bookingId)) {
             return res.status(400).json({ message: "Invalid Booking ID" });
@@ -74,7 +72,7 @@ export const createPreference = async (req: Request, res: Response) => {
             initPoint: response.init_point,
             notificationUrl: body.notification_url,
             externalReference: body.external_reference
-        }); 
+        });
 
         // Retornamos el id de la preferencia para que el frontend abra el checkout
         res.status(200).json({ id: response.id, init_point: response.init_point });
@@ -85,14 +83,18 @@ export const createPreference = async (req: Request, res: Response) => {
 };
 
 export const receiveWebhook = async (req: Request, res: Response) => {
-      console.log("WEBHOOK RECIBIDO");
+
+    console.log("WEBHOOK RECIBIDO");
+
     // Mercado Pago envía el ID en req.query.data.id o req.query.id dependiendo del tipo de evento
     const paymentId = req.query["data.id"] || req.query.id;
     const type = req.query.type || req.query.topic;
-    // Si no es un evento de pago, respondemos HTTP 200 inmediatamente
+
+    // Si no es un evento de pago,
     if (type !== "payment" || !paymentId) {
         return res.status(200).send("Notificación ignorada");
     }
+    
     // Iniciamos la sesión transaccional de Mongoose
     const session = await mongoose.startSession();
 
@@ -143,21 +145,12 @@ export const receiveWebhook = async (req: Request, res: Response) => {
         await bookingRepository.update(objectIdBooking, { status: "Pendiente por aceptar" }, session);
 
         let paymentMethod: "Tarjeta" | "Transferencia bancaria" | "Paypal";
-        if (mpPayment.payment_type_id === "credit_card") {
-            paymentMethod = "Tarjeta";
-        }
-        else if (mpPayment.payment_type_id === "debit_card") {
-            paymentMethod = "Tarjeta";
-        }
-        else if (mpPayment.payment_type_id === "bank_transfer") {
-            paymentMethod = "Transferencia bancaria";
-        }
-        else if (mpPayment.payment_type_id === "paypal") {
-            paymentMethod = "Paypal";
-        }
-        else {
-            paymentMethod = "Tarjeta";
-        }
+
+        if (mpPayment.payment_type_id === "credit_card") {          paymentMethod = "Tarjeta"; }
+        else if (mpPayment.payment_type_id === "debit_card") {      paymentMethod = "Tarjeta"; }
+        else if (mpPayment.payment_type_id === "bank_transfer") {   paymentMethod = "Transferencia bancaria"; }
+        else if (mpPayment.payment_type_id === "paypal") {          paymentMethod = "Paypal"; }
+        else {                                                      paymentMethod = "Tarjeta"; }
 
         // Creamos el registro del pago pasando la sesión
         await paymentRepository.create({

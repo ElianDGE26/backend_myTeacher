@@ -39,6 +39,10 @@ export class BookingRepository implements IBookingRepository {
     return await BookingModel.countDocuments(query).exec();
   }
 
+  async updateMany(query: Query, update: Partial<Booking>): Promise<void> {
+    await BookingModel.updateMany(query, update).exec();
+  }
+
   /* recuento de los estudiantes que han tenido al menos una tutoria en estado completada en el mes; 
     En el servicio se utilizó tambien para hacer la comparación del mes actual con el mes anterior*/
   async recuentStudentsBookings(query: Query): Promise<number> {

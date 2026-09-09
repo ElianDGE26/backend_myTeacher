@@ -10,7 +10,7 @@ import paymentsRoutes from "../routes/paymentsRoutes";
 import reviewRoutes from "../routes/reviewRoutes";
 import mercadoPagoRoutes from "../routes/mercadoPagoRoutes";
 import cors from 'cors';
-import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { startBookingExpirationJob } from "../jobs/bookingExpirationJob";
 
 
 class Server {
@@ -29,9 +29,10 @@ class Server {
         connectionDb();
         this.middlewares();
         this.routes();
+
+        startBookingExpirationJob();
     }
-
-
+    
     middlewares() {// middlewares generales
         //parseo del body
         this.app.use(express.json());

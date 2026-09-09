@@ -34,7 +34,7 @@ const BookingSchema: Schema = new Schema<Booking>(
     },
     status: {
       type: String,
-      enum: ["Pendiente por aceptar", "Aceptada", "Rechazada", "Completada", "Cancelada", "Pendiente por pago"],
+      enum: ["Pendiente por aceptar", "Aceptada", "Rechazada", "Completada", "Cancelada", "Pendiente por pago", "Expirada"],
       default: "Pendiente por pago",
       required: true
     },
@@ -60,7 +60,12 @@ const BookingSchema: Schema = new Schema<Booking>(
     },
     discount: {
       type: Number,
-      required: true
+      required: true,
+      default: 0
+    },
+    paymentExpiresAt: {
+      type: Date,
+      required: false
     }
   },
   {
@@ -81,7 +86,8 @@ const BookingSchema: Schema = new Schema<Booking>(
           endTime: ret.endTime,
           videoCallLink: ret.videoCallLink,
           price: ret.price,
-          discount: ret.discount
+          discount: ret.discount,
+          paymentExpiresAt: ret.paymentExpiresAt
         };
       }
     } 

@@ -6,10 +6,16 @@ import { IUserRepository } from "../types/usersTypes";
 import { UserRepository } from "../repositories/userRepositories";
 import mongoose, { Types } from "mongoose";
 import CustomError from "../utils/CustomError";
+import { IAvailabilityRepository, IAvailabilityService } from "../types/availabilityTypes";
+import { AvailabilityRepository } from "../repositories/availabilityRepositories";
+import { AvailabilityService } from "../services/availabilityService";
 
 const bookingRepository: IBookingRepository = new BookingRepository();
 const userRepository: IUserRepository = new UserRepository();
 const bookingService: IBookingService = new BookingService(bookingRepository, userRepository);
+
+const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
+const availabilityService: IAvailabilityService = new AvailabilityService(availabilityRepository);
 
 
 
@@ -65,18 +71,121 @@ export const getBookingByid = async (req: Request, res: Response) => {
 
 export const createBooking = async (req: Request, res: Response) => {
     try {
-
         const newBooking: Booking = req.body;
+
+        // Verificamos formato  de la fecha
+        let bookingDateStr = String(newBooking.date);
+        let dateObj: Date;
+        
+        const dateRegex = /^(\d{4})-(\d{2})-(\d{2})(T.*)?$/; 
+        const match = bookingDateStr.match(dateRegex); 
+
+        let dayOfWeek:string = "";
+        let startOfDay: Date;
+        let endOfDay: Date;
+        const daysOfWeekEs = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+        if (match) {
+
+            const year = Number(match[1]); 
+            const month = Number(match[2]); 
+            const day = Number(match[3]);
+
+            dateObj = new Date(year, month - 1, day);
+            dayOfWeek = daysOfWeekEs[dateObj.getDay()]!;
+
+            startOfDay = new Date(Date.UTC(year, month - 1, day, 0, 0, 0));
+            endOfDay = new Date(Date.UTC(year, month - 1, day, 23, 59, 59));
+        } else {
+            dateObj = new Date(bookingDateStr);
+
+            if (isNaN(dateObj.getTime())) {
+                return res.status(400).json({ message: "Invalid date format." });
+            }
+            // 
+            dayOfWeek = daysOfWeekEs[dateObj.getUTCDay()]!;
+            startOfDay = new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate(), 0, 0, 0));
+            endOfDay = new Date(Date.UTC(dateObj.getUTCFullYear(), dateObj.getUTCMonth(), dateObj.getUTCDate(), 23, 59, 59));
+        }
+
+        // Disponibilidad del tutor
+        const availabilities = await availabilityService.findAllAvailabilities({ 
+            tutorId: newBooking.tutorId, 
+            dayOfWeek: dayOfWeek,
+            active: true 
+        });
+
+        if (!availabilities || availabilities.length === 0) {
+            return res.status(400).json({ message: "El tutor no tiene disponibilidad para este día." });
+        }
+        
+        const bookingStart = timeToMinutes(newBooking.startTime);
+        const bookingEnd = timeToMinutes(newBooking.endTime);
+
+        // 4.3 y 4.4 Validar dentro de ventana de disponibilidad activa
+        let isWithinAvailability = false;
+        for (const avail of availabilities) {
+            const availStart = timeToMinutes(avail.startTime);
+            const availEnd = timeToMinutes(avail.endTime);
+            if (bookingStart >= availStart && bookingEnd <= availEnd) {
+                isWithinAvailability = true;
+                break;
+            }
+        }
+
+        if (!isWithinAvailability) {
+            return res.status(400).json({ message: "El horario solicitado no está dentro de la disponibilidad del tutor." });
+        }
+
+        // 4.5 Conflicto con bookings existentes
+        const activeStatuses = ["Pendiente por aceptar", "Aceptada"];
+        const existingBookings = await bookingService.findAllBookings({
+            tutorId: newBooking.tutorId,
+            date: { $gte: startOfDay, $lte: endOfDay },
+            $or: [
+                { status: { $in: activeStatuses } },
+                { status: "Pendiente por pago", paymentExpiresAt: { $gt: new Date() } }
+            ]
+        });
+
+        for (const existing of existingBookings) {
+            const existingStart = timeToMinutes(existing.startTime);
+            const existingEnd = timeToMinutes(existing.endTime);
+            
+            // Si hay un cruce: (el inicio de la nueva es ANTES del fin de la existente Y el fin de la nueva es DESPUÉS del inicio de la existente)
+            if (bookingStart < existingEnd && bookingEnd > existingStart) {
+                return res.status(409).json({ message: "Este horario acaba de ser reservado. Actualiza los horarios disponibles." });
+            }
+        }
+
+        // Si pasa todas las validaciones, creamos la reserva
+        // Asignamos fecha de expiración si está en estado pendiente de pago
+        if (!newBooking.status || newBooking.status === "Pendiente por pago") {
+            const expireDate = new Date();
+            expireDate.setMinutes(expireDate.getMinutes() + 15);
+            newBooking.paymentExpiresAt = expireDate;
+        }
 
         const result =  await bookingService.createBooking(newBooking);
 
         res.status(201).json(result);
         
     } catch (error) {
-        console.error("Error fetching Bookings:", error);
-        res.status(400).json({ message: "Internal server error" });
+        console.error("Error creating Booking:", error);
+        res.status(500).json({ message: "Internal server error" });
     }
 }
+
+// -----
+const timeToMinutes = (time: string) => {
+    const timeRegex = /^(\d{2}):(\d{2})$/;
+    const matchTime = time.match(timeRegex);
+    if (!matchTime) {
+        throw new Error(`Invalid time format: ${time}. Use HH:mm`);
+    }
+    return Number(matchTime[1]) * 60 + Number(matchTime[2]);
+};
+//------
 
 export const updateBookingByid = async (req: Request, res: Response) => {
     try {
@@ -228,4 +337,4 @@ export const getCountStudentsTheBookingForTutor = async (req:Request, res:Respon
         console.log("Error counting students who made reservations with tutor : >>>> ", error);
         res.status(500).json({ message: "Error counting students who made reservations with tutor "} );
     }
-}
+} 

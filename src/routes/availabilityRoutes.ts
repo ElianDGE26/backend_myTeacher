@@ -1,10 +1,11 @@
 import { Router } from "express";
-import { createAvailability, getAllAvailabilities, getAllAvailabilitiesByTutorId, getAvailabilityByid, updateAvailabilityByid, deleteAvailabilityByid} from "../controllers/availabilityControllers";
+import { createAvailability, getAllAvailabilities, getAllAvailabilitiesByTutorId, getAvailabilityByid, updateAvailabilityByid, deleteAvailabilityByid, getTutorRealAvailability} from "../controllers/availabilityControllers";
 import { verifyToken } from "../middelwears/authMiddelwears";
 const router = Router();
 
 
 //Rutas Get
+router.get("/tutors/:id/availability", verifyToken, getTutorRealAvailability);
 router.get("/availabilityTutor/:id", verifyToken, getAllAvailabilitiesByTutorId);
 router.get("/:id", verifyToken, getAvailabilityByid);
 router.get("/", verifyToken, getAllAvailabilities);

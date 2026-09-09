@@ -8,13 +8,14 @@ export interface Booking extends Document {
     subjectId: Types.ObjectId;
     type: 'virtual' | 'Presencial';
     location:string;
-    status: 'Pendiente por aceptar' | 'Aceptada' | 'Rechazada' | 'Completada' | 'Cancelada' | 'Pendiente por pago';
+    status: 'Pendiente por aceptar' | 'Aceptada' | 'Rechazada' | 'Completada' | 'Cancelada' | 'Pendiente por pago' | 'Expirada';
     date: Date;
     startTime: string;
     endTime: string;
     videoCallLink?: string;
     price: number;
-    discount: number
+    discount: number;
+    paymentExpiresAt?: Date;
 }
 
 export interface IBookingRepository extends Repository<Booking> {
@@ -25,6 +26,7 @@ export interface IBookingRepository extends Repository<Booking> {
     nextBooking(tutorId: Types.ObjectId, status: String): Promise<any[]>;
     findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number })[]>;
     update(id: Types.ObjectId, data: Partial<Booking>, session?: mongoose.ClientSession | null): Promise<Booking | null>;
+    updateMany(filter: Query, update: Partial<Booking>): Promise<void>;
 }
 
 export interface IBookingService { 
@@ -38,4 +40,5 @@ export interface IBookingService {
     getStudentsByTutorBooking(tutorId: Types.ObjectId): Promise<{day: number, count: number}[]>;
     getNextTwoBookingsForTutor(tutorId: Types.ObjectId, status: String): Promise<any[]>;
     findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number })[]>;
+    expirePendingPayments(): Promise<void>;
 }

@@ -1,10 +1,7 @@
 import { Types } from "mongoose";
 import { IBookingRepository, IBookingService, Booking } from "../types/bookingsTypes";
 import { Query } from "../types/reporsitoryTypes";
-import { BookingRepository } from "../repositories/bookingRepositories";
 import { IUserRepository } from "../types/usersTypes";
-import { error } from "console";
-import CustomError from "../utils/CustomError";
 
 
 export class BookingService implements IBookingService {
@@ -20,7 +17,6 @@ export class BookingService implements IBookingService {
        const result = await this.bookingRepository.findAllWithReviewCount(query);
         return result;
     }
-
 
     async countBookingsBystatus(tutorId: Types.ObjectId, status: string, date: Date): Promise<number> {
         return await this.bookingRepository.countByDocuments({ tutorId, status, date});
@@ -38,8 +34,6 @@ export class BookingService implements IBookingService {
         const result = await this.bookingRepository.findAll(query);
         return result;
     }
-
-    
 
     async findBookingById (id: Types.ObjectId): Promise<Booking | null> {
         return await this.bookingRepository.findById(id);
@@ -96,4 +90,18 @@ export class BookingService implements IBookingService {
 
         return result;
     }
+
+    async expirePendingPayments(): Promise<void> {
+    const now = new Date();
+    
+    await this.bookingRepository.updateMany(
+        {
+            status: "Pendiente por pago",
+            paymentExpiresAt: { $lte: now }
+        },
+        {
+            status: "Expirada"
+        }
+    );
+  }
 }

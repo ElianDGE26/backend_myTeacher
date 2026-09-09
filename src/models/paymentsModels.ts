@@ -13,6 +13,12 @@ const PaymentSchema: Schema = new Schema<Payments>(
       ref: MODEL_NAMES.BOOKINGS, 
       required: true 
     },
+    providerPaymentId: {
+      type: String,
+      default: null,
+      unique: true,
+      sparse: true
+    },
     method: {
       type: String,
       enum: ["Tarjeta", "Transferencia bancaria", "PayPal"],
@@ -44,6 +50,7 @@ const PaymentSchema: Schema = new Schema<Payments>(
         return {
           _id: ret._id,
           bookingId: ret.bookingId,
+          providerPaymentId: ret.providerPaymentId,
           tutorId: ret.tutorId,
           studentId: ret.studentId,
           method: ret.method,

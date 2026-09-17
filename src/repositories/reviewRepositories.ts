@@ -37,5 +37,30 @@ export class ReviewRepository implements IReviewRepository{
         return await ReviewModel.findOne(query).exec();
     }
 
+    async findReviewsByStudent(studentId: Types.ObjectId): Promise<Review[]> {
+        return await ReviewModel.aggregate([
+            {
+                $lookup: {
+                    from: "bookings",
+                    localField: "bookingId",
+                    foreignField: "_id",
+                    as: "booking"
+                }
+            },
+            {
+                $unwind: "$booking"
+            },
+            {
+                $match: {
+                    "booking.studentId": studentId
+                }
+            },
+            {
+                $project: {
+                    "booking": 0 // Exclude booking data from the final output, to match Review interface
+                }
+            }
+        ]).exec();
+    }
 
 }

@@ -34,4 +34,12 @@ export class ReviewService implements IReviewService {
     async deleteReviewById (id: Types.ObjectId): Promise<boolean> {
         return await this.reviewRepository.delete(id);
     }  
+
+    async findReviewsByBooking(bookingId: Types.ObjectId): Promise<Review[]> {
+        return await this.reviewRepository.findAll({ bookingId });
+    }
+
+    async findReviewsByStudent(studentId: Types.ObjectId): Promise<Review[]> {
+        return await this.reviewRepository.findReviewsByStudent(studentId);
+    }
 }

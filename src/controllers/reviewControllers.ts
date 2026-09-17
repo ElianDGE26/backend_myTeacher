@@ -119,3 +119,49 @@ export const deleteReviewByid = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+export const getReviewsByBooking = async (req: Request, res: Response) => {
+  try {
+    const { bookingId } = req.params;
+
+    if (!bookingId) {
+      return res.status(400).json({ message: "Missing Booking ID in params" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+      return res.status(404).json({ message: "Invalid Booking Id" });
+    }
+
+    const result = await reviewService.findReviewsByBooking(
+      new mongoose.Types.ObjectId(bookingId)
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching Reviews by Booking:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const getReviewsByStudent = async (req: Request, res: Response) => {
+  try {
+    const { studentId } = req.params;
+
+    if (!studentId) {
+      return res.status(400).json({ message: "Missing Student ID in params" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(studentId)) {
+      return res.status(404).json({ message: "Invalid Student Id" });
+    }
+
+    const result = await reviewService.findReviewsByStudent(
+      new mongoose.Types.ObjectId(studentId)
+    );
+
+    res.json(result);
+  } catch (error) {
+    console.error("Error fetching Reviews by Student:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

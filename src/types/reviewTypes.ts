@@ -10,6 +10,7 @@ export interface Review extends Document {
 export interface IReviewRepository extends Repository<Review> {
     findOne(query: Query): Promise<Review | null>;
     count(query: Query): Promise<number>;
+    findReviewsByStudent(studentId: Types.ObjectId): Promise<Review[]>;
 }
 
 export interface IReviewService {
@@ -19,4 +20,6 @@ export interface IReviewService {
     updateReviewById(id: Types.ObjectId, review: Partial<Review>): Promise<Review | null>;
     deleteReviewById(id: Types.ObjectId): Promise<boolean>;
     countReviewsByBooking(id: Types.ObjectId): Promise<number>;
+    findReviewsByBooking(bookingId: Types.ObjectId): Promise<Review[]>;
+    findReviewsByStudent(studentId: Types.ObjectId): Promise<Review[]>;
 }   

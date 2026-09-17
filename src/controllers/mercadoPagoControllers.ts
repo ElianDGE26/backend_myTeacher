@@ -62,7 +62,7 @@ export const createPreference = async (req: Request, res: Response) => {
                 pending: `${config.frontendUrlProd}/payment/pending`,
             },
             auto_return: "approved",
-            notification_url: "https://sequel-defective-alabaster.ngrok-free.dev/api/mercadopago/webhook"// URL expuesta a internet para probar webhooks
+            notification_url: "https://backend-myteacher.onrender.com/api/mercadopago/webhook"// URL expuesta a internet para probar webhooks
 
         };
         const response = await preference.create({ body });

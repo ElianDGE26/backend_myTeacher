@@ -23,7 +23,7 @@ const bookingService: IBookingService = new BookingService(bookingRepository, us
 export const createPreference = async (req: Request, res: Response) => {
     try {
 
-        const { bookingId } = req.body;
+        const { bookingId, returnUrl } = req.body;
 
         if (!bookingId || !mongoose.Types.ObjectId.isValid(bookingId)) {
             return res.status(400).json({ message: "Invalid Booking ID" });
@@ -42,6 +42,17 @@ export const createPreference = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "User not found" });
         }
 
+        const allowedReturnUrls = [
+            config.frontendUrlProd,
+            config.urlFrontendNgrok,
+        ];
+
+        if (!allowedReturnUrls.includes(returnUrl)) {
+            return res.status(400).json({
+                error: "Invalid return URL",
+            });
+        }
+
         const body = {
             items: [
                 {
@@ -57,12 +68,12 @@ export const createPreference = async (req: Request, res: Response) => {
             },
             external_reference: bookingId.toString(),
             back_urls: {
-                success: `${config.frontendUrlDev}/payment/success`,
-                failure: `${config.frontendUrlDev}/payment/failure`,
-                pending: `${config.frontendUrlDev}/payment/pending`,
+                success: `${returnUrl}/payment/result`,
+                failure: `${returnUrl}/payment/result`,
+                pending: `${returnUrl}/payment/result`,
             },
             auto_return: "approved",
-            notification_url: "https://backend-myteacher.onrender.com/api/mercadopago/webhook"// URL expuesta a internet para probar webhooks
+            notification_url: `${config.urlBackendProd}/api/mercadopago/webhook`//
 
         };
         const response = await preference.create({ body });

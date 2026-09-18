@@ -2,7 +2,8 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const { PORT, MONGODB_URL, JWT_SECRET, FRONTEND_URL_DEV, FRONTEND_URL_PROD, JWT_SECRET_REFRESH_TOKEN, MP_ACCESS_TOKEN, URL_NOTIFICATION_NGROK } = process.env;
+const { PORT, MONGODB_URL, JWT_SECRET, FRONTEND_URL_DEV, 
+  FRONTEND_URL_PROD, JWT_SECRET_REFRESH_TOKEN, MP_ACCESS_TOKEN, URL_NOTIFICATION_NGROK, URL_BACKEND_PROD, URL_FRONTEND_NGROK } = process.env;
 
 if (!PORT) {
   throw new Error('PORT is not defined');
@@ -28,6 +29,12 @@ if (!MP_ACCESS_TOKEN) {
 if (!URL_NOTIFICATION_NGROK) {
   throw new Error('URL_NOTIFICATION_NGROK is not defined');
 }
+if (!URL_BACKEND_PROD) {
+  throw new Error('URL_BACKEND_PROD is not defined');
+}
+if (!URL_FRONTEND_NGROK) {
+  throw new Error('URL_FRONTEND_NGROK is not defined');
+}
 
 
 export default {
@@ -38,7 +45,9 @@ export default {
   frontendUrlDev: FRONTEND_URL_DEV,
   frontendUrlProd: FRONTEND_URL_PROD, 
   mpAccessToken: MP_ACCESS_TOKEN, 
-  urlNotificationNgrok: URL_NOTIFICATION_NGROK
+  urlNotificationNgrok: URL_NOTIFICATION_NGROK,
+  urlBackendProd: URL_BACKEND_PROD,
+  urlFrontendNgrok: URL_FRONTEND_NGROK
 };
 
 

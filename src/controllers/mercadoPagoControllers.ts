@@ -57,9 +57,9 @@ export const createPreference = async (req: Request, res: Response) => {
             },
             external_reference: bookingId.toString(),
             back_urls: {
-                success: `${config.frontendUrlProd}/payment/success`,
-                failure: `${config.frontendUrlProd}/payment/failure`,
-                pending: `${config.frontendUrlProd}/payment/pending`,
+                success: `${config.frontendUrlDev}/payment/success`,
+                failure: `${config.frontendUrlDev}/payment/failure`,
+                pending: `${config.frontendUrlDev}/payment/pending`,
             },
             auto_return: "approved",
             notification_url: "https://backend-myteacher.onrender.com/api/mercadopago/webhook"// URL expuesta a internet para probar webhooks
@@ -82,6 +82,7 @@ export const createPreference = async (req: Request, res: Response) => {
     }
 };
 
+ 
 export const receiveWebhook = async (req: Request, res: Response) => {
 
     console.log("WEBHOOK RECIBIDO");

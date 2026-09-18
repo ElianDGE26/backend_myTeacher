@@ -63,6 +63,10 @@ const BookingSchema: Schema = new Schema<Booking>(
       required: true,
       default: 0
     },
+    preferenceId: {
+      type: String,
+      required: false
+    },
     paymentExpiresAt: {
       type: Date,
       required: false
@@ -87,6 +91,7 @@ const BookingSchema: Schema = new Schema<Booking>(
           videoCallLink: ret.videoCallLink,
           price: ret.price,
           discount: ret.discount,
+          preferenceId: ret.preferenceId,
           paymentExpiresAt: ret.paymentExpiresAt
         };
       }

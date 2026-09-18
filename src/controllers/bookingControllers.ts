@@ -122,7 +122,7 @@ export const createBooking = async (req: Request, res: Response) => {
         const bookingStart = timeToMinutes(newBooking.startTime);
         const bookingEnd = timeToMinutes(newBooking.endTime);
 
-        // 4.3 y 4.4 Validar dentro de ventana de disponibilidad activa
+        // Validar dentro de ventana de disponibilidad activa
         let isWithinAvailability = false;
         for (const avail of availabilities) {
             const availStart = timeToMinutes(avail.startTime);
@@ -137,7 +137,7 @@ export const createBooking = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "El horario solicitado no está dentro de la disponibilidad del tutor." });
         }
 
-        // 4.5 Conflicto con bookings existentes
+        // Conflicto con bookings existentes
         const activeStatuses = ["Pendiente por aceptar", "Aceptada"];
         const existingBookings = await bookingService.findAllBookings({
             tutorId: newBooking.tutorId,

@@ -74,6 +74,8 @@ export const createPreference = async (req: Request, res: Response) => {
             externalReference: body.external_reference
         });
 
+        await bookingService.updateBookingById(bookingId,{preferenceId: response.id});
+
         // Retornamos el id de la preferencia para que el frontend abra el checkout
         res.status(200).json({ id: response.id, init_point: response.init_point });
     } catch (error) {

@@ -216,6 +216,7 @@ export const receiveWebhook = async (req: Request, res: Response) => {
         else if (mpPayment.payment_type_id === "paypal") {          paymentMethod = "Paypal"; }
         else {                                                      paymentMethod = "Tarjeta"; }
 
+        const amountTotal = (mpPayment.transaction_amount ?? 0) + (existingBooking.discount || 0);
         // Creamos el registro del pago pasando la sesión
         await paymentService.createPayment({
             bookingId: objectIdBooking,
@@ -224,7 +225,7 @@ export const receiveWebhook = async (req: Request, res: Response) => {
             status: "Pagada",
             date: new Date(mpPayment.date_approved || Date.now()),
             currency: mpPayment.currency_id || "COP",
-            amount: mpPayment.transaction_amount || 0,
+            amount: amountTotal || 0,
         } as any, session);
 
         // Si ambas operaciones fueron exitosas, hacemos el commit a la base de datos

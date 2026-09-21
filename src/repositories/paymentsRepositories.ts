@@ -17,7 +17,7 @@ import mongoose, { Types } from "mongoose";
  * @class PaymentsRepository
  * @implements {IPaymentsRepository}
  */
-export class PaymentsRepository implements IPaymentsRepository{
+export class PaymentsRepository implements IPaymentsRepository {
 
     /**
      * Persiste un nuevo pago en la base de datos con soporte opcional de transacción.
@@ -29,7 +29,7 @@ export class PaymentsRepository implements IPaymentsRepository{
      */
     async create(data: Partial<Payments> | Payments, session: mongoose.ClientSession | null = null): Promise<Payments> {
         const newPayment = new PaymentModel(data);
-        return await newPayment.save({session});
+        return await newPayment.save({ session });
     }
 
     /**
@@ -41,7 +41,7 @@ export class PaymentsRepository implements IPaymentsRepository{
      */
     async findAll(query?: Query): Promise<Payments[]> {
         return await PaymentModel.find(query || {}).exec();
-    }   
+    }
 
     /**
      * Busca un pago específico por su identificador único de MongoDB.
@@ -73,7 +73,7 @@ export class PaymentsRepository implements IPaymentsRepository{
      * @param {Types.ObjectId} id - Identificador del pago a eliminar.
      * @returns {Promise<boolean>} Promesa que resuelve con true si fue eliminado exitosamente, o false en caso contrario.
      */
-    async delete (id: Types.ObjectId): Promise<boolean> {
+    async delete(id: Types.ObjectId): Promise<boolean> {
         const result = await PaymentModel.findByIdAndDelete(id).exec();
         return result ? true : false;
     }
@@ -85,12 +85,12 @@ export class PaymentsRepository implements IPaymentsRepository{
      * @param {Query} query - Criterios de búsqueda en MongoDB.
      * @returns {Promise<Payments | null>} Promesa que resuelve con el pago o null si no se encontró.
      */
-    async findOne (query: Query): Promise<Payments | null> {
+    async findOne(query: Query): Promise<Payments | null> {
         return await PaymentModel.findOne(query).exec();
     }
 
     /**
-     * Calcula la suma total de dinero recaudado en pagos confirmados ("Completada")
+     * Calcula la suma total de dinero recaudado en pagos confirmados ("Pagada")
      * correspondientes a las reservas de un tutor para un rango de fechas dado.
      *
      * @async
@@ -101,13 +101,13 @@ export class PaymentsRepository implements IPaymentsRepository{
         const tutorId = query.tutorId;
         const datefilter = query.date;
 
-        const resultBooking = await BookingModel.find({ tutorId: tutorId, date: datefilter}).select("_id").exec(); //Buscamos las tutorias  del tutorID
+        const resultBooking = await BookingModel.find({ tutorId: tutorId, date: datefilter }).select("_id").exec(); //Buscamos las tutorias  del tutorID
         const bookingIds = resultBooking.map(booking => booking._id); //Traemos solo el id
 
         //Buscamos en los pagos donde se encuentren los ids que ya tenemos de las reservas, en estados pagadas y sumamos los totales
         const result = await PaymentModel.aggregate([
-            { $match: { bookingId: { $in: bookingIds}, status: "Completada"}},
-            { $group: { _id: null, total: { $sum: "$amount"}}}
+            { $match: { bookingId: { $in: bookingIds }, status: "Pagada" } },
+            { $group: { _id: null, total: { $sum: "$amount" } } }
         ]);
 
         return result[0]?.total || 0;

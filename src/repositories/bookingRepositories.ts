@@ -298,6 +298,10 @@ export class BookingRepository implements IBookingRepository {
         startTime: 1,
         endTime: 1,
         price: 1,
+        discount: 1,
+        totalAmount: {
+           $add: ["$price", "$discount"]
+        },
         startDateTime: 1,
         videoCallLink:1,
         student: {

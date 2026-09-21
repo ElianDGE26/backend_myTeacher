@@ -144,6 +144,7 @@ export class PaymentsService implements IPaymentsService {
     // fechas del mes anterior
     const startOfPreviousMonth = subMonths(startOfCurrentMonth, 1);
     const endOfPreviousMonth = subMonths(endOfCurrentMonth, 1);
+
     console.log('startOfPreviousMonth :>> ', startOfPreviousMonth);
     console.log('endOfPreviousMonth :>> ', endOfPreviousMonth);
 

@@ -189,7 +189,7 @@ export class PaymentsService implements IPaymentsService {
       this.bookingRepository.recuentStudentsBookings({ tutorId, date: { $gte: startDate, $lte: endDate }}),
       this.paymentsRepository.totalIncomeByTutor({ tutorId, date: { $gte: startDate, $lte: endDate }}),
       this.bookingRepository.countByDocuments({ tutorId, status: "Cancelada",date: { $gte: startDate, $lte: endDate }}),
-      this.bookingRepository.countByDocuments({ tutorId, status: "Pendiente por aceptar", date: { $gte: today, $lte: endDate }}),
+      this.bookingRepository.countByDocuments({ tutorId, status: "Pendiente por aceptar", date: { $gte: today }}),
     ]);
   }
 

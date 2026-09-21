@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Controlador de Mercado Pago (Mercado Pago Controller)
+ * @module controllers/mercadoPagoControllers
+ * @description Maneja la integración con la pasarela de pagos Mercado Pago: creación de preferencias de pago (checkout) y procesamiento de notificaciones webhook mediante transacciones ACID de MongoDB.
+ */
+
 import { Request, Response } from "express";
 import { preference, client } from "../config/mercadoPago";
 import { PaymentsRepository } from "../repositories/paymentsRepositories";
@@ -20,6 +26,27 @@ const userRepository: IUserRepository = new UserRepository();
 const userService: IUserService = new UserService(userRepository);                  
 const bookingService: IBookingService = new BookingService(bookingRepository, userRepository);
 
+/**
+ * Crea una preferencia de pago en Mercado Pago para una reserva pendiente de pago.
+ *
+ * Flujo:
+ * 1. Valida el `bookingId` y comprueba que la reserva esté en estado "Pendiente por pago".
+ * 2. Verifica la existencia del estudiante asociado y valida la URL de retorno permitida.
+ * 3. Configura los ítems, pagador, URLs de redirección y webhook en la preferencia de Mercado Pago.
+ * 4. Actualiza la reserva con el `preferenceId` generado y devuelve los datos al frontend para abrir el checkout.
+ *
+ * @route POST /api/mercadopago/create_preference
+ * @access Público / Cliente
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Object} req.body - Cuerpo de la solicitud.
+ * @param {string} req.body.bookingId - ID de MongoDB de la reserva.
+ * @param {string} req.body.returnUrl - URL base del frontend para redirección posterior al pago.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto con `{ id: string, init_point: string }` de la preferencia.
+ * @returns {Promise<Response>} 400 - Booking ID inválido, reserva no apta para pago o returnUrl no permitida.
+ * @returns {Promise<Response>} 404 - Reserva o usuario no encontrado.
+ * @returns {Promise<Response>} 500 - Error al comunicarse con Mercado Pago o procesar la preferencia.
+ */
 export const createPreference = async (req: Request, res: Response) => {
     try {
 
@@ -95,7 +122,30 @@ export const createPreference = async (req: Request, res: Response) => {
     }
 };
 
- 
+/**
+ * Recibe y procesa las notificaciones de eventos (Webhooks) enviadas por Mercado Pago.
+ *
+ * Flujo transaccional (ACID):
+ * 1. Extrae el `paymentId` y valida que el tópico sea de tipo 'payment'.
+ * 2. Inicia una sesión con transacción en MongoDB.
+ * 3. Consulta el estado del pago directamente en la API de Mercado Pago.
+ * 4. Valida que el estado sea 'approved', evitando duplicados si la reserva ya fue aceptada.
+ * 5. Actualiza atómicamente el estado de la reserva a "Pendiente por aceptar" y registra el nuevo pago.
+ * 6. Hace commit de la transacción o rollback (abort) en caso de fallo, asegurando el cierre de la sesión.
+ *
+ * @route POST /api/mercadopago/webhook
+ * @access Público (Llamado por los servidores de Mercado Pago)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} [req.query['data.id']] - ID del pago enviado en la notificación.
+ * @param {string} [req.query.id] - ID alternativo del pago.
+ * @param {string} [req.query.type] - Tipo de evento (ej: 'payment').
+ * @param {string} [req.query.topic] - Tópico alternativo de la notificación.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Notificación procesada con éxito, ignorada o duplicada.
+ * @returns {Promise<Response>} 400 - Parámetros de referencia inválidos.
+ * @returns {Promise<Response>} 404 - Reserva no encontrada.
+ * @returns {Promise<Response>} 500 - Error al procesar el webhook.
+ */
 export const receiveWebhook = async (req: Request, res: Response) => {
 
     console.log("WEBHOOK RECIBIDO");

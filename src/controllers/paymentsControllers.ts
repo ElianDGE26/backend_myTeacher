@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Controlador de Pagos (Payments Controller)
+ * @module controllers/paymentsControllers
+ * @description Maneja las peticiones HTTP relacionadas con la gestión de pagos y estadísticas financieras de tutores.
+ */
+
 import {   IPaymentsRepository,   IPaymentsService,   Payments, } from "../types/paymentsTypes";
 import { IBookingRepository,  IBookingService, Booking, } from "../types/bookingsTypes";
 import { BookingService } from "../services/bookingService";
@@ -15,6 +21,16 @@ const paymentService: IPaymentsService = new PaymentsService( paymentRepository,
 const userRepository: IUserRepository = new UserRepository();
 const bookingService: IBookingService = new BookingService(bookingRepository, userRepository);
 
+/**
+ * Obtiene el listado completo de todos los pagos registrados en el sistema.
+ *
+ * @route GET /api/payments
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Array con todos los registros de pagos.
+ * @returns {Promise<Response>} 500 - Error interno del servidor al consultar los pagos.
+ */
 export const getAllPayments = async (req: Request, res: Response) => {
   try {
     const result = await paymentService.findAllPayments();
@@ -26,6 +42,19 @@ export const getAllPayments = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Obtiene la información detallada de un pago específico a partir de su ID.
+ *
+ * @route GET /api/payments/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único de MongoDB (ObjectId) del pago.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto con los datos del pago encontrado.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o pago no encontrado.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const getPaymentByid = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -52,6 +81,17 @@ export const getPaymentByid = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Crea y registra un nuevo pago en el sistema.
+ *
+ * @route POST /api/payments/create
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Payments} req.body - Datos del pago a registrar (bookingId, providerPaymentId, method, status, amount, etc.).
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 201 - Objeto con los datos del pago creado exitosamente.
+ * @returns {Promise<Response>} 400 - Error en los datos proporcionados o fallo al procesar la creación.
+ */
 export const createPayment = async (req: Request, res: Response) => {
   try {
     const newPayment: Payments = req.body;
@@ -65,6 +105,20 @@ export const createPayment = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Actualiza la información de un pago existente por su ID.
+ *
+ * @route PUT /api/payments/update/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único de MongoDB (ObjectId) del pago.
+ * @param {Payments} req.body - Campos actualizados del pago.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto con los datos actualizados del pago.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o pago no encontrado.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const updatePaymentByid = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -95,6 +149,19 @@ export const updatePaymentByid = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Elimina un registro de pago específico por su ID.
+ *
+ * @route DELETE /api/payments/delete/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único de MongoDB (ObjectId) del pago a eliminar.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto indicando el éxito de la eliminación `{ success: boolean }`.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o pago no encontrado.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const deletePaymentByid = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -122,6 +189,20 @@ export const deletePaymentByid = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Obtiene las estadísticas consolidadas del docente/tutor:
+ * métricas financieras, cantidad de estudiantes atendidos y próximas dos reservas programadas.
+ *
+ * @route GET /api/payments/stats/:tutorId
+ * @access Público
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.tutorId - Identificador único de MongoDB (ObjectId) del tutor.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto con estadísticas financieras, estudiantes y próximas tutorías.
+ * @returns {Promise<Response>} 400 - Parámetro tutorId ausente.
+ * @returns {Promise<Response>} 404 - Formato de tutorId inválido.
+ * @returns {Promise<Response>} 500 - Error inesperado al procesar las estadísticas.
+ */
 export const getStats = async (req: Request, res: Response) => {
   try {
     const { tutorId } = req.params;
@@ -168,3 +249,4 @@ export const getStats = async (req: Request, res: Response) => {
     });
   }
 };
+

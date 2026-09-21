@@ -1,16 +1,43 @@
+/**
+ * @fileoverview Repositorio de Reservas y Tutorías (Booking Repository)
+ * @module repositories/bookingRepositories
+ * @description Capa de acceso a datos para la colección de reservas de clases en MongoDB, incluyendo consultas complejas, agregaciones analíticas y soporte transaccional.
+ */
+
 import { BookingModel } from "../models/bookingModels";
 import { Query } from "../types/reporsitoryTypes";
 import { IBookingRepository, Booking } from "../types/bookingsTypes";
 import mongoose, { Types } from "mongoose";
 import { format } from "path";
+import { preference } from "../config/mercadoPago";
 
-
+/**
+ * Repositorio que gestiona las operaciones de persistencia, pipelines de agregación y métricas de reservas.
+ * Implementa `IBookingRepository`.
+ *
+ * @class BookingRepository
+ * @implements {IBookingRepository}
+ */
 export class BookingRepository implements IBookingRepository {
+  /**
+   * Persiste una nueva reserva en la base de datos.
+   *
+   * @async
+   * @param {Booking} data - Objeto con los datos de la reserva a registrar.
+   * @returns {Promise<Booking>} Promesa que resuelve con la reserva guardada.
+   */
   async create(data: Booking): Promise<Booking> {
     const newBooking = new BookingModel(data);
     return await newBooking.save();
   }
 
+  /**
+   * Consulta todas las reservas con poblado de nombres de estudiante y materia.
+   *
+   * @async
+   * @param {Query} [query] - Criterios de filtrado para la búsqueda.
+   * @returns {Promise<Booking[]>} Promesa que resuelve con un array de reservas encontradas.
+   */
   async findAll(query?: Query): Promise<Booking[]> {
     return await BookingModel.find(query || {})
       .populate("studentId", "name")
@@ -18,33 +45,84 @@ export class BookingRepository implements IBookingRepository {
       .exec();
   }
 
+  /**
+   * Busca una reserva específica por su ID.
+   *
+   * @async
+   * @param {Types.ObjectId} id - Identificador de MongoDB de la reserva.
+   * @returns {Promise<Booking | null>} Promesa que resuelve con la reserva encontrada o null.
+   */
   async findById(id: Types.ObjectId): Promise<Booking | null> {
     return await BookingModel.findById(id).exec();
   }
 
+  /**
+   * Actualiza una reserva por su ID, permitiendo opcionalmente participar en una transacción ACID.
+   *
+   * @async
+   * @param {Types.ObjectId} id - Identificador de la reserva.
+   * @param {Partial<Booking>} data - Campos parciales a actualizar.
+   * @param {mongoose.ClientSession | null} [session=null] - Sesión de transacción opcional.
+   * @returns {Promise<Booking | null>} Promesa que resuelve con el documento actualizado o null.
+   */
   async update( id: Types.ObjectId, data: Partial<Booking>, session: mongoose.ClientSession | null = null): Promise<Booking | null> {
     return await BookingModel.findByIdAndUpdate(id, data, { new: true, session }).exec();
   }
 
+  /**
+   * Elimina una reserva de la base de datos por su ID.
+   *
+   * @async
+   * @param {Types.ObjectId} id - Identificador de MongoDB de la reserva a eliminar.
+   * @returns {Promise<boolean>} Promesa que resuelve con true si fue eliminada, o false en caso contrario.
+   */
   async delete(id: Types.ObjectId): Promise<boolean> {
     const result = await BookingModel.findByIdAndDelete(id).exec();
     return result ? true : false;
   }
 
+  /**
+   * Busca una única reserva que coincida con los criterios dados.
+   *
+   * @async
+   * @param {Query} query - Criterios de búsqueda en MongoDB.
+   * @returns {Promise<Booking | null>} Promesa que resuelve con la reserva encontrada o null.
+   */
   async findOne(query: Query): Promise<Booking | null> {
     return await BookingModel.findOne(query).exec();
   }
 
+  /**
+   * Cuenta la cantidad de documentos de reserva que satisfacen una condición.
+   *
+   * @async
+   * @param {Query} query - Criterios de consulta (ej: tutorId, status, date).
+   * @returns {Promise<number>} Promesa que resuelve con la cantidad de documentos.
+   */
   async countByDocuments(query: Query): Promise<number> {
     return await BookingModel.countDocuments(query).exec();
   }
 
+  /**
+   * Actualiza múltiples documentos de reserva que cumplan con la condición especificada.
+   *
+   * @async
+   * @param {Query} query - Filtro de selección para los documentos a actualizar.
+   * @param {Partial<Booking>} update - Datos o campos a aplicar.
+   * @returns {Promise<void>}
+   */
   async updateMany(query: Query, update: Partial<Booking>): Promise<void> {
     await BookingModel.updateMany(query, update).exec();
   }
 
-  /* recuento de los estudiantes que han tenido al menos una tutoria en estado completada en el mes; 
-    En el servicio se utilizó tambien para hacer la comparación del mes actual con el mes anterior*/
+  /**
+   * Cuenta la cantidad de estudiantes únicos (distintos) que tuvieron al menos una tutoría
+   * en estado "Completada" en un rango de fechas determinado.
+   *
+   * @async
+   * @param {Query} query - Parámetros de consulta (tutorId, rango de fechas).
+   * @returns {Promise<number>} Promesa que resuelve con el número de estudiantes distintos.
+   */
   async recuentStudentsBookings(query: Query): Promise<number> {
     const Idtutor = query.tutorId;
     const datefilter = query.date;
@@ -58,9 +136,14 @@ export class BookingRepository implements IBookingRepository {
     return students.length;
   }
 
-
-
-  /* función para tener el recuento de estudiante agrupados por cada dia del mes actual de los estudiantes que han tenido una reserva en estado completada  */
+  /**
+   * Agrupa y contabiliza las reservas completadas o aceptadas de un tutor para cada día del mes actual (en UTC).
+   * Rellena todos los días calendario del mes (1..28/31) con 0 si no hubo citas ese día.
+   *
+   * @async
+   * @param {Query} query - Objeto que contiene `{ tutorId: string | Types.ObjectId }`.
+   * @returns {Promise<{ day: number; count: number }[]>} Promesa que resuelve con un array ordenado de días del mes y su conteo de citas.
+   */
   async recuentStudentsForDays( query: Query ): Promise<{ day: number; count: number }[]> {
     const id = new Types.ObjectId(query.tutorId as string);
 
@@ -127,7 +210,7 @@ export class BookingRepository implements IBookingRepository {
 
       return filled;  // Devuelve algo como [{ day: 1, count: 3 }, { day: 2, count: 5 }, ...]
 
-    //console.log("📌 FINAL RESULT (UTC-aware) >> ", result);
+    //console.log("FINAL RESULT (UTC-aware) >> ", result);
 
     /* console.log(
       " DEBUG RESULT",
@@ -140,7 +223,15 @@ export class BookingRepository implements IBookingRepository {
 
   }
 
-  /** Funcion para traer las dos tutorias proximas*/
+  /**
+   * Obtiene las dos tutorías futuras más próximas para un tutor determinado según el estado solicitado.
+   * Concatena fecha y hora en `startDateTime`, filtra `>= now`, ordena ascendentemente y puebla estudiante y materia.
+   *
+   * @async
+   * @param {Types.ObjectId | string} tutorId - Identificador único del tutor.
+   * @param {string} status - Estado de la reserva a filtrar (ej: "Aceptada").
+   * @returns {Promise<any[]>} Promesa que resuelve con hasta 2 reservas próximas detalladas.
+   */
   async nextBooking( tutorId: Types.ObjectId | string, status: string ): Promise<any[]> {
     const now = new Date();
 
@@ -221,11 +312,18 @@ export class BookingRepository implements IBookingRepository {
     }
     ]);
 
-    console.log('bookings :>> ', bookings);
+    //console.log('bookings :>> ', bookings);
     return bookings;
   }
 
-
+  /**
+   * Realiza una agregación completa sobre las reservas poblando los datos del estudiante, tutor y materia,
+   * e integrando un lookup adicional sobre la colección de reseñas para calcular el campo `reviewsCount`.
+   *
+   * @async
+   * @param {Query} [query] - Criterios de filtrado opcionales para el pipeline.
+   * @returns {Promise<(Booking & { reviewsCount: number })[]>} Promesa que resuelve con las reservas enriquecidas y el total de reseñas.
+   */
   async findAllWithReviewCount(query?: Query): Promise<(Booking & { reviewsCount: number })[]> {
     return BookingModel.aggregate([
       { $match: query || {} },
@@ -259,23 +357,36 @@ export class BookingRepository implements IBookingRepository {
         }
       },
       { $unwind: { path: "$subject", preserveNullAndEmptyArrays: true } },
-
       // Lookup para contar reviews
       {
         $lookup: {
           from: "reviews",
-          localField: "_id",
-          foreignField: "bookingId",
+          let: { bookingId: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$bookingId", "$$bookingId"]
+                }
+              }
+            },
+            {
+              $count: "count"
+            }
+          ],
           as: "reviews"
         }
       },
       {
         $addFields: {
-          reviewsCount: { $size: "$reviews" }
+          reviewsCount: {
+            $ifNull: [
+              { $arrayElemAt: ["$reviews.count", 0] },
+              0
+            ]
+          }
         }
       },
-
-      // Limpiar arrays innecesarios
       {
         $project: {
         _id: 1,
@@ -287,7 +398,12 @@ export class BookingRepository implements IBookingRepository {
         startTime: 1,
         endTime: 1,
         videoCallLink:1,
+        preferenceId: 1,
         price: 1,
+        discount: 1,
+        totalAmount: {
+           $add: ["$price", "$discount"]
+        },
         tutor: {
           _id: 1,
           name: 1,

@@ -8,20 +8,21 @@ const COLLECTION_NAME: string = MODEL_NAMES.REVIEWS;
 
 const ReviewSchema: Schema = new Schema<Review>(
   {
-    bookingId: { 
-      type: Schema.Types.ObjectId, 
-      ref: MODEL_NAMES.BOOKINGS, 
-      required: true 
+    bookingId: {
+      type: Schema.Types.ObjectId,
+      ref: MODEL_NAMES.BOOKINGS,
+      required: true,
+      index: true
     },
-    rating: { 
-      type: Number, 
-      min:[1, "La minima calificacion es 1"], 
-      max:[5, "La maxima calificacion es 5"],
-      required: true 
+    rating: {
+      type: Number,
+      min: [1, "La minima calificacion es 1"],
+      max: [5, "La maxima calificacion es 5"],
+      required: true
     },
-    comments: { 
-      type: String, 
-      required: false 
+    comments: {
+      type: String,
+      required: false
     },
   },
   {

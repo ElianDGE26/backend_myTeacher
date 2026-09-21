@@ -17,7 +17,6 @@ export interface Booking extends Document {
     discount: number;
     paymentExpiresAt?: Date;
     preferenceId?:string;
-
 }
 
 export interface IBookingRepository extends Repository<Booking> {

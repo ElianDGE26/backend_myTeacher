@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Controlador de Materias / Asignaturas (Subject Controller)
+ * @module controllers/subjectControllers
+ * @description Maneja las operaciones CRUD de materias y búsquedas especializadas para encontrar docentes por materia y listar materias impartidas por un tutor.
+ */
+
 import { ISubjectRepository, ISubjectService } from "../types/subjectsTypes";
 import { SubjectRepository } from "../repositories/subjectRepositories";
 import { SubjectService } from "../services/subjectService";
@@ -11,6 +17,16 @@ const subjectRepository: ISubjectRepository = new SubjectRepository();
 const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
 const subjectService: ISubjectService = new SubjectService(subjectRepository, availabilityRepository);
 
+/**
+ * Obtiene todas las materias registradas en la plataforma.
+ *
+ * @route GET /api/subjects
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Array con todas las materias.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const getAllSubjects = async (req: Request, res: Response) => {
   try {
     console.log("req :>> ", req.currentUser);
@@ -23,6 +39,19 @@ export const getAllSubjects = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Obtiene la información detallada de una materia por su ID.
+ *
+ * @route GET /api/subjects/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único (ObjectId) de la materia.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto con la información de la materia.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o materia no encontrada.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const getSubjectByid = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -51,6 +80,17 @@ export const getSubjectByid = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Crea una nueva materia vinculada a un tutor.
+ *
+ * @route POST /api/subjects/create
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Subject} req.body - Datos de la materia (name, description, tutorId, price, etc.).
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 201 - Materia creada exitosamente.
+ * @returns {Promise<Response>} 400 - Error en los datos proporcionados o al guardar.
+ */
 export const createSubject = async (req: Request, res: Response) => {
   try {
     const newSubject: Subject = req.body;
@@ -64,6 +104,20 @@ export const createSubject = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Actualiza los datos de una materia existente por su ID.
+ *
+ * @route PUT /api/subjects/update/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único (ObjectId) de la materia.
+ * @param {Subject} req.body - Campos actualizados de la materia.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Materia actualizada.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o materia no encontrada.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const updateSubjectByid = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -94,6 +148,19 @@ export const updateSubjectByid = async (req: Request, res: Response) => {
   }
 };
 
+/**
+ * Elimina una materia de la base de datos por su ID.
+ *
+ * @route DELETE /api/subjects/delete/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único (ObjectId) de la materia.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto de confirmación `{ success: boolean }`.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o materia no encontrada.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const deleteSubjectByid = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -121,9 +188,20 @@ export const deleteSubjectByid = async (req: Request, res: Response) => {
   }
 };
 
-/* 
-controlador para el buscador de las materias y que devuelva los docentes que hay disponnibles
-*/
+/**
+ * Busca materias por nombre y devuelve los docentes/tutores que las imparten junto con su información relevante.
+ * Utilizado por el buscador de materias de los estudiantes.
+ *
+ * @route GET /api/subjects/UserSubjects/:subjectName
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.subjectName - Nombre o término de búsqueda de la materia.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Lista de profesores y materias coincidentes.
+ * @returns {Promise<Response>} 400 - Nombre de materia ausente en los parámetros.
+ * @returns {Promise<Response>} 404 - No se encontraron materias ni docentes con ese nombre.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const findUserBySubjectName = async (req: Request, res: Response) => {
   try {
     const { subjectName } = req.params;
@@ -154,9 +232,20 @@ export const findUserBySubjectName = async (req: Request, res: Response) => {
   }
 };
 
-/* 
-Controlador para que el mismo tutor pueda ver las materias que imparte
-*/
+/**
+ * Obtiene el listado de materias impartidas por un tutor específico.
+ * Utilizado para que el tutor consulte sus propias asignaturas registradas.
+ *
+ * @route GET /api/subjects/subjectsBytutorId/:tutorId
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.tutorId - Identificador único del tutor.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Array con las materias dictadas por el tutor.
+ * @returns {Promise<Response>} 400 - Parámetro tutorId ausente.
+ * @returns {Promise<Response>} 404 - No se encontraron materias para el tutor especificado.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const findSubjectByTutorId = async (req: Request, res: Response) => {
   try {
     console.log("tutorId recibido:", req.params);
@@ -183,3 +272,4 @@ export const findSubjectByTutorId = async (req: Request, res: Response) => {
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
+

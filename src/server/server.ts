@@ -18,12 +18,14 @@ class Server {
     private port: string;
     private frontendUrlDev: string;
     private frontendUrlProd: string;
+    private frontendUrlNgrok: string;
 
     constructor() {
-        this.app = express();
-        this.port = config.port || '3000';
-        this.frontendUrlDev = config.frontendUrlDev;
-        this.frontendUrlProd = config.frontendUrlProd;
+        this.app                = express();
+        this.port               = config.port || '3000';
+        this.frontendUrlDev     = config.frontendUrlDev;
+        this.frontendUrlProd    = config.frontendUrlProd;
+        this.frontendUrlNgrok   = config.urlFrontendNgrok;
         
         // configurción de BDD y rutas
         connectionDb();
@@ -39,14 +41,14 @@ class Server {
         
         //Configuración de CORS
         this.app.options(/.*/, cors({
-            origin: [this.frontendUrlDev, this.frontendUrlProd],
+            origin: [this.frontendUrlDev, this.frontendUrlProd, this.frontendUrlNgrok],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             credentials: true,
             allowedHeaders: ['content-type', 'authorization', 'accept', 'x-access-token']
         }));
 
         this.app.use(cors({
-            origin: [this.frontendUrlDev, this.frontendUrlProd],
+            origin: [this.frontendUrlDev, this.frontendUrlProd, this.frontendUrlNgrok],
             methods: ['GET', 'POST', 'PUT', 'DELETE'],
             credentials: true,
             allowedHeaders: ['content-type', 'authorization', 'accept', 'x-access-token']

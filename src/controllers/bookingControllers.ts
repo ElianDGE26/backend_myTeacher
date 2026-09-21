@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Controlador de Reservas / Tutorías (Booking Controller)
+ * @module controllers/bookingControllers
+ * @description Maneja el ciclo de vida de las reservas de clases, validaciones de horarios, conflictos de disponibilidad y conteos para métricas.
+ */
+
 import { IBookingRepository, IBookingService, Booking } from "../types/bookingsTypes";
 import { BookingRepository } from "../repositories/bookingRepositories";
 import { BookingService } from "../services/bookingService";
@@ -17,8 +23,16 @@ const bookingService: IBookingService = new BookingService(bookingRepository, us
 const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
 const availabilityService: IAvailabilityService = new AvailabilityService(availabilityRepository);
 
-
-
+/**
+ * Obtiene todas las reservas registradas junto con el conteo de reseñas asociadas.
+ *
+ * @route GET /api/bookings/bokkingsWithReviewCount/
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Lista de reservas con la cantidad de reseñas.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const getAllBookingsWithReviewCounts = async (req: Request, res: Response) => {
     try {
         const result =  await bookingService.findAllWithReviewCount();
@@ -30,6 +44,16 @@ export const getAllBookingsWithReviewCounts = async (req: Request, res: Response
     }
 }
 
+/**
+ * Obtiene todas las reservas registradas en la base de datos.
+ *
+ * @route GET /api/bookings
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Array con todas las reservas.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const getAllBookings = async (req: Request, res: Response) => {
     try {
         const result =  await bookingService.findAllBookings();
@@ -41,6 +65,19 @@ export const getAllBookings = async (req: Request, res: Response) => {
     }
 }
 
+/**
+ * Obtiene el detalle de una reserva específica por su ID.
+ *
+ * @route GET /api/bookings/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único (ObjectId) de la reserva.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto con los datos de la reserva.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o reserva no encontrada.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const getBookingByid = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -69,6 +106,23 @@ export const getBookingByid = async (req: Request, res: Response) => {
     }
 }
 
+/**
+ * Crea una nueva reserva realizando validaciones estrictas de:
+ * 1. Formato de fecha y correspondencia con el día de la semana.
+ * 2. Horario dentro de las disponibilidades activas del tutor.
+ * 3. Detección de solapamientos o conflictos con reservas existentes (Pendiente por aceptar, Aceptada o Pendiente por pago vigente).
+ * 4. Asignación automática de ventana de expiración de 15 minutos para pagos pendientes.
+ *
+ * @route POST /api/bookings/create
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Booking} req.body - Datos de la reserva (studentId, tutorId, subjectId, date, startTime, endTime, price, etc.).
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 201 - Reserva creada exitosamente.
+ * @returns {Promise<Response>} 400 - Formato de fecha erróneo o horario fuera de la disponibilidad del tutor.
+ * @returns {Promise<Response>} 409 - Conflicto de horario (el tutor ya tiene una reserva en ese rango).
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const createBooking = async (req: Request, res: Response) => {
     try {
         const newBooking: Booking = req.body;
@@ -176,7 +230,13 @@ export const createBooking = async (req: Request, res: Response) => {
     }
 }
 
-// -----
+/**
+ * Convierte una hora en formato militar HH:mm a minutos totales desde el inicio del día.
+ *
+ * @param {string} time - Hora en formato "HH:mm".
+ * @returns {number} Minutos transcurridos desde las 00:00.
+ * @throws {Error} Si el formato no coincide con HH:mm.
+ */
 const timeToMinutes = (time: string) => {
     const timeRegex = /^(\d{2}):(\d{2})$/;
     const matchTime = time.match(timeRegex);
@@ -185,8 +245,21 @@ const timeToMinutes = (time: string) => {
     }
     return Number(matchTime[1]) * 60 + Number(matchTime[2]);
 };
-//------
 
+/**
+ * Actualiza los datos de una reserva por su ID.
+ *
+ * @route PUT /api/bookings/update/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único (ObjectId) de la reserva.
+ * @param {Booking} req.body - Propiedades actualizadas de la reserva.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Reserva actualizada.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o reserva no encontrada.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const updateBookingByid = async (req: Request, res: Response) => {
     try {
         const {id } = req.params;
@@ -214,6 +287,19 @@ export const updateBookingByid = async (req: Request, res: Response) => {
     }
 }
 
+/**
+ * Elimina una reserva de la base de datos por su ID.
+ *
+ * @route DELETE /api/bookings/delete/:id
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.id - Identificador único (ObjectId) de la reserva a eliminar.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto de confirmación `{ success: boolean }`.
+ * @returns {Promise<Response>} 400 - Parámetro ID ausente.
+ * @returns {Promise<Response>} 404 - Formato de ID inválido o reserva no encontrada.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const deleteBookingByid = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
@@ -239,7 +325,19 @@ export const deleteBookingByid = async (req: Request, res: Response) => {
     }
 }
 
-//Reservas por el id del estudiante
+/**
+ * Obtiene todas las reservas de tutorías asociadas a un estudiante específico.
+ *
+ * @route GET /api/bookings/count/student-bookings/:userId
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.userId - Identificador único (ObjectId) del estudiante.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Array con las reservas del estudiante y conteo de reseñas.
+ * @returns {Promise<Response>} 400 - Parámetro userId ausente.
+ * @returns {Promise<Response>} 404 - Formato de userId inválido o sin reservas asociadas.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const bookingsByStudentsId = async (req: Request, res: Response) => {
     try {
         const { userId } = req.params;
@@ -267,7 +365,19 @@ export const bookingsByStudentsId = async (req: Request, res: Response) => {
     }
 }
 
-//reservas por el id del tutor, es decir, las tutorias que él profesor ha hecho
+/**
+ * Obtiene todas las tutorías impartidas o agendadas para un tutor específico.
+ *
+ * @route GET /api/bookings/count/tutor-bookings/:tutorId
+ * @access Privado (Requiere token de autenticación)
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.tutorId - Identificador único (ObjectId) del tutor.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Array con las reservas del tutor y conteo de reseñas.
+ * @returns {Promise<Response>} 400 - Parámetro tutorId ausente.
+ * @returns {Promise<Response>} 404 - Formato de tutorId inválido o sin reservas asociadas.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const bookingsByTutorId = async (req: Request, res: Response) => {
     try {
         const { tutorId } = req.params;
@@ -295,7 +405,20 @@ export const bookingsByTutorId = async (req: Request, res: Response) => {
     }
 }
 
-//traer el numeo de estudiantes que hicieron reservas con un tutor para el  grafico 
+/**
+ * Obtiene el número de estudiantes que han reservado clases con el tutor (para gráficas estadísticas)
+ * y las próximas dos reservas confirmadas (con estado "Aceptada").
+ *
+ * @route GET /api/bookings/countStudents-bookingsByTutor/:tutorId
+ * @access Público
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {string} req.params.tutorId - Identificador único (ObjectId) del tutor.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Objeto con estadísticas de estudiantes (`result`) y próximas reservas (`nextBookings`).
+ * @returns {Promise<Response>} 400 - Parámetro tutorId ausente.
+ * @returns {Promise<Response>} 404 - Formato de tutorId inválido.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const getCountStudentsTheBookingForTutor = async (req:Request, res:Response) => {
     try {
         const { tutorId } = req.params;
@@ -337,4 +460,5 @@ export const getCountStudentsTheBookingForTutor = async (req:Request, res:Respon
         console.log("Error counting students who made reservations with tutor : >>>> ", error);
         res.status(500).json({ message: "Error counting students who made reservations with tutor "} );
     }
-} 
+}
+ 

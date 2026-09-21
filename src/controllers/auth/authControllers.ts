@@ -1,3 +1,9 @@
+/**
+ * @fileoverview Controlador de Autenticación y Sesiones (Auth Controller)
+ * @module controllers/auth/authControllers
+ * @description Maneja el registro de nuevos usuarios, inicio de sesión, cambio de contraseña, cierre de sesión y rotación / refresco de tokens JWT con persistencia de sesiones.
+ */
+
 import { IUserRepository, IUserService, User } from "../../types/usersTypes";
 import { UserRepository } from "../../repositories/userRepositories";
 import { UserService } from "../../services/userService";
@@ -18,8 +24,20 @@ const userService: IUserService = new UserService(userRepository);
 const sessionRepository = new SessionRepository();
 const sessionService: ISessionService = new SessionService(sessionRepository);
 
-
-
+/**
+ * Registra un nuevo usuario en la plataforma, genera tokens de autenticación JWT y crea la sesión inicial.
+ *
+ * @route POST /api/users/auth/register
+ * @access Público
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {User} req.body - Datos del usuario a registrar (email, password, role, etc.).
+ * @param {string} req.body.email - Correo electrónico del usuario.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 201 - Usuario registrado exitosamente junto con el token JWT: `{ message, user, token }`.
+ * @returns {Promise<Response>} 400 - Email no proporcionado.
+ * @returns {Promise<Response>} 409 - Ya existe un usuario registrado con ese email.
+ * @returns {Promise<Response>} 500 - Error interno del servidor al procesar el registro.
+ */
 export const registerUSer = async (req: Request, res: Response) => {
     try {
         const email: string = req.body.email;
@@ -68,6 +86,22 @@ export const registerUSer = async (req: Request, res: Response) => {
     }
 }
 
+/**
+ * Autentica las credenciales de un usuario (email y contraseña), elimina sesiones previas
+ * y genera un nuevo par de Access Token y Refresh Token con sesión persistida.
+ *
+ * @route POST /api/users/auth/login
+ * @access Público
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Object} req.body - Credenciales del usuario.
+ * @param {string} req.body.email - Correo electrónico registrado.
+ * @param {string} req.body.password - Contraseña en texto plano.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Login exitoso: `{ message, token, refreshToken }`.
+ * @returns {Promise<Response>} 400 - Email o contraseña ausentes.
+ * @returns {Promise<Response>} 401 - Credenciales inválidas (usuario no encontrado o contraseña incorrecta).
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const loginUser = async (req: Request, res: Response) => {
     try {
 
@@ -119,6 +153,23 @@ export const loginUser = async (req: Request, res: Response) => {
     } 
 }
 
+/**
+ * Permite a un usuario cambiar su contraseña actual verificando previamente su identidad.
+ *
+ * @route PUT /api/users/auth/change-password
+ * @access Público / Autenticado
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Object} req.body - Datos para el cambio de contraseña.
+ * @param {string} req.body.email - Email del usuario.
+ * @param {string} req.body.password - Contraseña actual.
+ * @param {string} req.body.newPassword - Nueva contraseña a establecer.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Contraseña actualizada exitosamente.
+ * @returns {Promise<Response>} 400 - Faltan campos requeridos (password, newPassword o email).
+ * @returns {Promise<Response>} 401 - La contraseña actual proporcionada es incorrecta.
+ * @returns {Promise<Response>} 404 - Usuario no encontrado con ese email.
+ * @returns {Promise<Response>} 500 - Error interno del servidor o al guardar la nueva contraseña.
+ */
 export const changePassword = async (req:Request, res: Response) => {
 
     try {
@@ -157,6 +208,19 @@ export const changePassword = async (req:Request, res: Response) => {
     }
 }
 
+/**
+ * Cierra la sesión activa del usuario eliminando el registro de la sesión a través del Refresh Token.
+ *
+ * @route POST /api/users/auth/logout
+ * @access Público / Autenticado
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Object} req.body - Cuerpo de la petición.
+ * @param {string} req.body.refreshToken - Refresh token de la sesión activa a revocar.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Sesión cerrada exitosamente.
+ * @returns {Promise<Response>} 400 - Refresh token ausente en la petición.
+ * @returns {Promise<Response>} 500 - Error al eliminar la sesión o error interno del servidor.
+ */
 export const logoutUser = async (req:Request, res: Response) => {
     try {
         const { refreshToken } = req.body;
@@ -179,6 +243,26 @@ export const logoutUser = async (req:Request, res: Response) => {
     }
 }
 
+/**
+ * Renueva el par de Access Token y Refresh Token utilizando un Refresh Token válido y no expirado.
+ *
+ * Flujo:
+ * 1. Valida la presencia del refreshToken en el cuerpo de la solicitud.
+ * 2. Consulta la sesión en la base de datos y verifica su fecha de expiración.
+ * 3. Valida la firma criptográfica del JWT del Refresh Token.
+ * 4. Genera nuevos Access Token y Refresh Token, actualiza la sesión en BD y los retorna al cliente.
+ *
+ * @route POST /api/users/auth/refresh-token
+ * @access Público
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Object} req.body - Cuerpo de la petición.
+ * @param {string} req.body.refreshToken - Refresh token actual.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Nuevos tokens generados: `{ accessToken, refreshToken }`.
+ * @returns {Promise<Response>} 400 - Refresh token ausente.
+ * @returns {Promise<Response>} 401 - Refresh token expirado, inválido o no encontrado en la base de datos.
+ * @returns {Promise<Response>} 500 - Error interno del servidor.
+ */
 export const refreshToken = async (req: Request, res:Response) => {
     try {
         const { refreshToken } = req.body;
@@ -234,4 +318,4 @@ export const refreshToken = async (req: Request, res:Response) => {
         console.error("Error refreshing token");
         res.status(500).json({ message: "Internal server error"});
     }
-}
+}

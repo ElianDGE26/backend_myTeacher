@@ -8,6 +8,7 @@ import { IUserRepository, IUserService } from "../types/usersTypes";
 import { UserRepository } from "../repositories/userRepositories";
 import { UserService } from "../services/userService";
 import { User} from "../types/usersTypes";
+import { sendRegistrationSuccessEmail } from "../services/emailService";
 import { Request, Response } from "express";
 import mongoose from "mongoose";
 
@@ -90,16 +91,23 @@ export const getUserByid = async (req: Request, res: Response) => {
  */
 export const createUser = async (req: Request, res: Response) => {
     try {
+      console.log("entreó en el controller de create user");
 
         const newUser: User = req.body;
 
         const result =  await userService.createUser(newUser);
 
+        if (result.email) {
+          console.log("entreó en el if");
+            // El envío se hace de forma asíncrona sin bloquear la respuesta al frontend
+            sendRegistrationSuccessEmail(result.email, result.name).catch(console.error);
+        }
+
         res.status(201).json(result);
         
     } catch (error) {
         console.error("Error fetching users:", error);
-        res.status(400).json({ message: "Internal server error" });
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 

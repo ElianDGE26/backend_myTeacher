@@ -8,19 +8,24 @@ import { IBookingRepository, IBookingService, Booking } from "../types/bookingsT
 import { BookingRepository } from "../repositories/bookingRepositories";
 import { BookingService } from "../services/bookingService";
 import { Request, Response } from "express";
-import { IUserRepository } from "../types/usersTypes";
+import { IUserRepository, IUserService } from "../types/usersTypes";
 import { UserRepository } from "../repositories/userRepositories";
 import mongoose, { Types } from "mongoose";
 import CustomError from "../utils/CustomError";
 import { IAvailabilityRepository, IAvailabilityService } from "../types/availabilityTypes";
 import { AvailabilityRepository } from "../repositories/availabilityRepositories";
 import { AvailabilityService } from "../services/availabilityService";
+import { sendBookingCreatedEmail, sendBookingStatusChangedEmail } from "../services/emailService";
+import { UserService } from "../services/userService";
 
 const bookingRepository: IBookingRepository = new BookingRepository();
 const userRepository: IUserRepository = new UserRepository();
+const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
+
+const userService: IUserService = new UserService(userRepository);
 const bookingService: IBookingService = new BookingService(bookingRepository, userRepository);
 
-const availabilityRepository: IAvailabilityRepository = new AvailabilityRepository();
+
 const availabilityService: IAvailabilityService = new AvailabilityService(availabilityRepository);
 
 /**
@@ -222,6 +227,13 @@ export const createBooking = async (req: Request, res: Response) => {
 
         const result =  await bookingService.createBooking(newBooking);
 
+        // Envío de correo electrónico al crear la reserva
+        const user = await userService.findUserById(newBooking.studentId);
+        if (user && user.email) {
+            // El envío se hace de forma asíncrona sin bloquear la respuesta al frontend
+            sendBookingCreatedEmail(user.email, result).catch(console.error);
+        }
+
         res.status(201).json(result);
         
     } catch (error) {
@@ -277,6 +289,14 @@ export const updateBookingByid = async (req: Request, res: Response) => {
 
         if (!result) {
             return res.status(404).json({ message: "Booking not found" });
+        }
+
+        // Si se actualizó el estado a algo diferente a "Pendiente por pago" en el request
+        if (bookingUpdate.status) {
+             const user = await userService.findUserById(result.studentId);
+            if (user && user.email) {
+                sendBookingStatusChangedEmail(user.email, result).catch(console.error);
+            }
         }
 
         res.json(result);

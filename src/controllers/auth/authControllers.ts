@@ -15,6 +15,7 @@ import { SessionRepository } from "../../repositories/sessionRepository"
 import { SessionService } from "../../services/sessionsService";
 import { ref } from "process";
 import mongoose, { Types } from "mongoose";
+import { constructFromSymbol } from "date-fns/constants";
 
 // Clave secreta para firmar los tokens JWT
 const SECRET_KEY = config.jwtSecret;
@@ -39,12 +40,13 @@ const sessionService: ISessionService = new SessionService(sessionRepository);
  * @returns {Promise<Response>} 500 - Error interno del servidor al procesar el registro.
  */
 export const registerUSer = async (req: Request, res: Response) => {
+    console.log("entreó en el controller de register user");
     try {
         const email: string = req.body.email;
 
         if (!email) { // Validar que el email esté presente
-            return res.status(400).json({ 
-                message: "Email is required" 
+            return res.status(400).json({
+                message: "Email is required"
             });
         }
 
@@ -57,25 +59,25 @@ export const registerUSer = async (req: Request, res: Response) => {
         }
 
         const newUser: User = req.body;
-
+        console.log("Procede a entrar en el servicio");
         const result = await userService.createUser(newUser);
 
         // token JWT
         const { token, refreshToken } = TokenService.generateAccessToken({
             idUser: result._id,
-            email: result.email, 
+            email: result.email,
             role: result.role
-        }); 
+        });
 
         await sessionService.createSession({
-            userId : result._id,
+            userId: result._id,
             accessToken: token,
             refreshToken: refreshToken,
-            expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 
+            expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         } as Session);
 
 
-         res.status(201).json({
+        res.status(201).json({
             message: "User registered successfully",
             user: result,
             token: token
@@ -106,7 +108,7 @@ export const loginUser = async (req: Request, res: Response) => {
     try {
 
         const { email, password } = req.body;
-        
+
         if (!email || !password) {
             return res.status(400).json({ message: "Email and password are required" });
         }
@@ -129,20 +131,20 @@ export const loginUser = async (req: Request, res: Response) => {
         // token JWT
         const { token, refreshToken } = TokenService.generateAccessToken({
             idUser: user._id,
-            email: user.email, 
+            email: user.email,
             role: user.role
-        }); 
+        });
 
         await sessionService.createSession({
-            userId : user._id,
+            userId: user._id,
             accessToken: token,
             refreshToken: refreshToken,
-            expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000), 
+            expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         } as Session);
 
 
-        res.status(200).json({ 
-            message: "Login successful", 
+        res.status(200).json({
+            message: "Login successful",
             token: token,
             refreshToken: refreshToken
         });
@@ -150,7 +152,7 @@ export const loginUser = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Error logging in user:", error);
         res.status(500).json({ message: "Internal server error" });
-    } 
+    }
 }
 
 /**
@@ -170,41 +172,41 @@ export const loginUser = async (req: Request, res: Response) => {
  * @returns {Promise<Response>} 404 - Usuario no encontrado con ese email.
  * @returns {Promise<Response>} 500 - Error interno del servidor o al guardar la nueva contraseña.
  */
-export const changePassword = async (req:Request, res: Response) => {
+export const changePassword = async (req: Request, res: Response) => {
 
     try {
-        const { password, newPassword, email } = req.body; 
+        const { password, newPassword, email } = req.body;
 
-        if(!password || !newPassword || !email) {
-            return res.status(400).json({ message: "Password, new password and userId are required"});
+        if (!password || !newPassword || !email) {
+            return res.status(400).json({ message: "Password, new password and userId are required" });
         }
 
         const user = await userService.findUserByEmail(email);
-        
+
         //el usuario no existe en la bdd
-        if(!user){
-            return res.status(404).json({ message: "User not found"});
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
         }
 
         //comparamos password
         const isPasswordValid = await user.comparePassword(password);
 
-        if(!isPasswordValid){
-            return res.status(401).json({ message: "Inavlid current pasword"});
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: "Inavlid current pasword" });
         }
 
         //actaulizamos la contraseña en la bdd
-        const updatePassword = await userService.updateUserById(new mongoose.Types.ObjectId(user._id as string), { password: newPassword});
+        const updatePassword = await userService.updateUserById(new mongoose.Types.ObjectId(user._id as string), { password: newPassword });
 
-        if(!updatePassword){
-            return res.status(500).json({ message: "Error updating password"});
+        if (!updatePassword) {
+            return res.status(500).json({ message: "Error updating password" });
         }
 
-        res.status(200).json({ message: "Password updated successfull"});
-        
+        res.status(200).json({ message: "Password updated successfull" });
+
     } catch (error) {
         console.error("Error changing password: ", error);
-        res.status(500).json({ message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -221,25 +223,25 @@ export const changePassword = async (req:Request, res: Response) => {
  * @returns {Promise<Response>} 400 - Refresh token ausente en la petición.
  * @returns {Promise<Response>} 500 - Error al eliminar la sesión o error interno del servidor.
  */
-export const logoutUser = async (req:Request, res: Response) => {
+export const logoutUser = async (req: Request, res: Response) => {
     try {
         const { refreshToken } = req.body;
 
-        if(!refreshToken){
-            return res.status(400).json({ message: "Refresh token is required"});
+        if (!refreshToken) {
+            return res.status(400).json({ message: "Refresh token is required" });
         }
 
         const deleted = await sessionService.deleteSessionByRefreshToken(refreshToken);
 
-        if(!deleted){
-            return res.status(500).json({ message: "Error logging out user"});
+        if (!deleted) {
+            return res.status(500).json({ message: "Error logging out user" });
         }
 
-        res.status(200).json({ message: "User logged out successfuly"});
-        
+        res.status(200).json({ message: "User logged out successfuly" });
+
     } catch (error) {
         console.error("Error logging out user: ", error);
-        res.status(500).json({ message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
 }
 
@@ -263,34 +265,34 @@ export const logoutUser = async (req:Request, res: Response) => {
  * @returns {Promise<Response>} 401 - Refresh token expirado, inválido o no encontrado en la base de datos.
  * @returns {Promise<Response>} 500 - Error interno del servidor.
  */
-export const refreshToken = async (req: Request, res:Response) => {
+export const refreshToken = async (req: Request, res: Response) => {
     try {
         const { refreshToken } = req.body;
 
         if (!refreshToken) { // sino existe en el request
-            return res.status(400).json({ message: "Refresh token is required"});
+            return res.status(400).json({ message: "Refresh token is required" });
         }
 
         const session = await sessionService.findSessionByRefreshToken(refreshToken); //se busca en ls bdd
-        
+
         //verificamos sino existe la session en bdd
         if (!session) {
-            return res.status(401).json({ message: "Inavlid or expired refresh token"})
+            return res.status(401).json({ message: "Inavlid or expired refresh token" })
         }
 
         //verificamos si el token ha expirado
-        if (session.expiresAt.getTime() < Date.now()){ //valida token expirado 
+        if (session.expiresAt.getTime() < Date.now()) { //valida token expirado 
             await sessionService.deleteSessionById(new mongoose.Types.ObjectId(session._id as string));
-            return res.status(401).json({ message: "Refresh token has expired"});
+            return res.status(401).json({ message: "Refresh token has expired" });
         }
 
         let payload: any;
-        
+
         try { //se verifica la firma del token
             payload = TokenService.verifyRefreshToken(refreshToken);
         } catch (error) {
             await sessionService.deleteSessionById(new mongoose.Types.ObjectId(session._id as string));
-            return res.status(401).json({ message: "Invalid refresh token"});
+            return res.status(401).json({ message: "Invalid refresh token" });
         }
 
         //Generamos el nuevo token
@@ -316,6 +318,6 @@ export const refreshToken = async (req: Request, res:Response) => {
 
     } catch (error) {
         console.error("Error refreshing token");
-        res.status(500).json({ message: "Internal server error"});
+        res.status(500).json({ message: "Internal server error" });
     }
-}
+}

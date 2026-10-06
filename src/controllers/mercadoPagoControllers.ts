@@ -18,6 +18,7 @@ import mongoose from "mongoose";
 import { UserService } from "../services/userService";
 import { Payment } from "mercadopago";
 import config from "../config/config";
+import { sendBookingStatusChangedEmail } from "../services/emailService";
 
 const paymentRepository: IPaymentsRepository = new PaymentsRepository();
 const bookingRepository: IBookingRepository = new BookingRepository();
@@ -204,9 +205,9 @@ export const receiveWebhook = async (req: Request, res: Response) => {
             return res.status(200).send("Pago ya procesado anteriormente");
         }
 
-        // 3. ATOMICIDAD (Transacciones): Ejecutamos las dos escrituras juntas
+        //ATOMICIDAD (Transacciones): Ejecutamos las dos escrituras juntas
         // A. Actualizamos la reserva pasando la sesión
-        await bookingService.updateBookingById(objectIdBooking, { status: "Pendiente por aceptar" }, session);
+        const updatedBooking = await bookingService.updateBookingById(objectIdBooking, { status: "Pendiente por aceptar" }, session);
 
         let paymentMethod: "Tarjeta" | "Transferencia bancaria" | "Paypal";
 
@@ -230,6 +231,15 @@ export const receiveWebhook = async (req: Request, res: Response) => {
 
         // Si ambas operaciones fueron exitosas, hacemos el commit a la base de datos
         await session.commitTransaction();
+
+        // Envío de correo notificando el pago
+        if (updatedBooking) {
+            const user = await userService.findUserById(existingBooking.studentId);
+            if (user && user.email) {
+                sendBookingStatusChangedEmail(user.email, updatedBooking).catch(console.error);
+            }
+        }
+
         res.status(200).send("Transacción completada exitosamente");
 
     } catch (error) {

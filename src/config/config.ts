@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const { PORT, MONGODB_URL, JWT_SECRET, FRONTEND_URL_DEV, 
-  FRONTEND_URL_PROD, JWT_SECRET_REFRESH_TOKEN, MP_ACCESS_TOKEN, URL_NOTIFICATION_NGROK, URL_BACKEND_PROD, URL_FRONTEND_NGROK } = process.env;
+  FRONTEND_URL_PROD, JWT_SECRET_REFRESH_TOKEN, MP_ACCESS_TOKEN, 
+  URL_NOTIFICATION_NGROK, URL_BACKEND_PROD, URL_FRONTEND_NGROK, 
+  EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_SECURE , EMAIL_FROM} = process.env;
 
 if (!PORT) {
   throw new Error('PORT is not defined');
@@ -35,7 +37,24 @@ if (!URL_BACKEND_PROD) {
 if (!URL_FRONTEND_NGROK) {
   throw new Error('URL_FRONTEND_NGROK is not defined');
 }
-
+if (!EMAIL_HOST) {
+  throw new Error('EMAIL_HOST is not defined');
+}
+if (!EMAIL_PORT) {
+  throw new Error('EMAIL_PORT is not defined');
+}
+if (!EMAIL_USER) {
+  throw new Error('EMAIL_USER is not defined');
+}
+if (!EMAIL_PASS) {
+  throw new Error('EMAIL_PASS is not defined');
+}
+if (!EMAIL_SECURE) {
+  throw new Error('EMAIL_SECURE is not defined');
+}
+if (!EMAIL_FROM) {
+  throw new Error('EMAIL_FROM is not defined');
+}
 
 export default {
   port: PORT,
@@ -47,7 +66,13 @@ export default {
   mpAccessToken: MP_ACCESS_TOKEN, 
   urlNotificationNgrok: URL_NOTIFICATION_NGROK,
   urlBackendProd: URL_BACKEND_PROD,
-  urlFrontendNgrok: URL_FRONTEND_NGROK
+  urlFrontendNgrok: URL_FRONTEND_NGROK,
+  emailHost: EMAIL_HOST,
+  emailPort: EMAIL_PORT,
+  emailUser: EMAIL_USER,
+  emailPass: EMAIL_PASS,
+  emailSecure: EMAIL_SECURE,
+  emailFrom: EMAIL_FROM
 };
 
 

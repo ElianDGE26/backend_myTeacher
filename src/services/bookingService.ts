@@ -8,6 +8,7 @@ import mongoose, { Types } from "mongoose";
 import { IBookingRepository, IBookingService, Booking } from "../types/bookingsTypes";
 import { Query } from "../types/reporsitoryTypes";
 import { IUserRepository } from "../types/usersTypes";
+import { sendBookingStatusChangedEmail } from "./emailService";
 
 /**
  * Servicio encargado de gestionar la lógica de negocio de las reservas de clases y tutorías.
@@ -195,16 +196,33 @@ export class BookingService implements IBookingService {
      * @returns {Promise<void>}
      */
     async expirePendingPayments(): Promise<void> {
-    const now = new Date();
-    
-    await this.bookingRepository.updateMany(
-        {
+        const now = new Date();
+        
+        // Encontrar reservas expiradas
+        const expiredBookings = await this.bookingRepository.findAll({
             status: "Pendiente por pago",
             paymentExpiresAt: { $lte: now }
-        },
-        {
-            status: "Expirada"
+        });
+
+        if (expiredBookings && expiredBookings.length > 0) {
+            await this.bookingRepository.updateMany(
+                {
+                    status: "Pendiente por pago",
+                    paymentExpiresAt: { $lte: now }
+                },
+                {
+                    status: "Expirada"
+                }
+            );
+            
+            //Envio de correos actualizando el estado.
+            for (const booking of expiredBookings) {
+                const user = await this.userRepository.findById(booking.studentId);
+                if (user && user.email) {
+                    const updatedBooking = { ...booking, status: "Expirada" } as Booking;
+                    sendBookingStatusChangedEmail(user.email, updatedBooking).catch(console.error);
+                }
+            }
         }
-    );
-  }
-}
+    }
+}

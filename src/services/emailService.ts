@@ -4,6 +4,7 @@ import { Booking } from "../types/bookingsTypes";
 import { render } from '@react-email/render';
 import { RegistrationEmail } from "../emails/RegistrationEmail";
 import { BookingEmail } from "../emails/BookingEmail";
+import { CustomEmail } from "../emails/CustomEmail";
 
 /**
  * @fileoverview Servicio de Correos Electrónicos (Email Service)
@@ -48,8 +49,6 @@ const getTransporter = async (): Promise<Transporter> => {
 };
 
 
-
-
 export const sendEmail = async (to: string, subject: string, text: string, html?: string) => {
     try {
         const mailOptions = {
@@ -69,9 +68,6 @@ export const sendEmail = async (to: string, subject: string, text: string, html?
         console.error(`Error enviando correo a ${to}:`, error);
     }
 };
-
-
-
 
 /**
  * Envía un correo notificando la creación de una reserva.
@@ -156,6 +152,40 @@ export const sendRegistrationSuccessEmail = async (to: string, name: string) => 
     
     const html = await render(
         RegistrationEmail({ name })
+    );
+
+    await sendEmail(to, subject, text, html);
+};
+
+/**
+ * Envía un correo personalizable (ej. para uso del frontend).
+ * @param to Correo del destinatario
+ * @param subject Asunto del correo
+ * @param title Título dentro del cuerpo del correo
+ * @param message Mensaje principal del correo
+ * @param previewText Texto de vista previa (opcional)
+ * @param buttonText Texto del botón (opcional)
+ * @param buttonLink Enlace del botón (opcional)
+ */
+export const sendCustomEmail = async (
+    to: string,
+    subject: string,
+    title: string,
+    message: string,
+    previewText?: string,
+    buttonText?: string,
+    buttonLink?: string
+) => {
+    const text = `${title}\n\n${message}\n\n${buttonText ? `${buttonText}: ${buttonLink}` : ''}\n\nGracias,\nEquipo MyTeacher`;
+    
+    const html = await render(
+        CustomEmail({
+            title,
+            message,
+            previewText,
+            buttonText,
+            buttonLink
+        })
     );
 
     await sendEmail(to, subject, text, html);

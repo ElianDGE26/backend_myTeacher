@@ -9,6 +9,7 @@ import bookingRoutes from "../routes/bookingRoutes";
 import paymentsRoutes from "../routes/paymentsRoutes";
 import reviewRoutes from "../routes/reviewRoutes";
 import mercadoPagoRoutes from "../routes/mercadoPagoRoutes";
+import emailRoutes from "../routes/emailRoutes";
 import cors from 'cors';
 import { startBookingExpirationJob } from "../jobs/bookingExpirationJob";
 
@@ -71,6 +72,7 @@ class Server {
         this.app.use('/api/payments', paymentsRoutes);
         this.app.use('/api/bookings', bookingRoutes);
         this.app.use('/api/mercadopago', mercadoPagoRoutes);
+        this.app.use('/api/emails', emailRoutes);
     }
 }
 

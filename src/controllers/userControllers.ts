@@ -91,14 +91,11 @@ export const getUserByid = async (req: Request, res: Response) => {
  */
 export const createUser = async (req: Request, res: Response) => {
     try {
-      console.log("entreó en el controller de create user");
-
         const newUser: User = req.body;
 
         const result =  await userService.createUser(newUser);
 
         if (result.email) {
-          console.log("entreó en el if");
             // El envío se hace de forma asíncrona sin bloquear la respuesta al frontend
             sendRegistrationSuccessEmail(result.email, result.name).catch(console.error);
         }

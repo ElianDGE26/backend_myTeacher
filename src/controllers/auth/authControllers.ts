@@ -13,6 +13,7 @@ import { TokenService } from "../../services/sessionsService";
 import { ISessionService, Session } from "../../types/sessionTypes";
 import { SessionRepository } from "../../repositories/sessionRepository"
 import { SessionService } from "../../services/sessionsService";
+import { sendRegistrationSuccessEmail } from "../../services/emailService";
 import { ref } from "process";
 import mongoose, { Types } from "mongoose";
 import { constructFromSymbol } from "date-fns/constants";
@@ -76,6 +77,10 @@ export const registerUSer = async (req: Request, res: Response) => {
             expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         } as Session);
 
+        if (result.email) {
+            // El envío se hace de forma asíncrona sin bloquear la respuesta al frontend
+            sendRegistrationSuccessEmail(result.email, result.name).catch(console.error);
+        }
 
         res.status(201).json({
             message: "User registered successfully",

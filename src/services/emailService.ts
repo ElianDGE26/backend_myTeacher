@@ -39,7 +39,7 @@ const getTransporter = async (): Promise<Transporter> => {
     } else {
         // ==== // PRODUCCIÓN // =======
         transporter = nodemailer.createTransport({
-            host: config.emailHost || "smtp.office365.com",
+            host: config.emailHost || "smtp.gmail.com",
             port: Number(config.emailPort) || 587,
             secure: config.emailSecure === "true", // outlook usually is false on 587 and uses STARTTLS
             auth: { user: config.emailUser, pass: config.emailPass },

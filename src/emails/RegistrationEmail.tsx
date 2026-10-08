@@ -23,7 +23,7 @@ export const RegistrationEmail = ({ name }: RegistrationEmailProps) => {
             </Text>
 
             <Section style={btnContainer}>
-              <Button href="https://tudominio.com/login" style={button}>
+              <Button href="https://my-teacher-smoky.vercel.app" style={button}>
                 Ir a la plataforma
               </Button>
             </Section>

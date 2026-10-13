@@ -5,7 +5,7 @@ dotenv.config();
 const { PORT, MONGODB_URL, JWT_SECRET, FRONTEND_URL_DEV, 
   FRONTEND_URL_PROD, JWT_SECRET_REFRESH_TOKEN, MP_ACCESS_TOKEN, 
   URL_NOTIFICATION_NGROK, URL_BACKEND_PROD, URL_FRONTEND_NGROK, 
-  EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_SECURE , EMAIL_FROM} = process.env;
+  EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS, EMAIL_SECURE , EMAIL_FROM, GMAIL_CLIENT_ID, GMAIL_CLIENT_SECRET, GMAIL_REFRESH_TOKEN} = process.env;
 
 if (!PORT) {
   throw new Error('PORT is not defined');
@@ -55,6 +55,15 @@ if (!EMAIL_SECURE) {
 if (!EMAIL_FROM) {
   throw new Error('EMAIL_FROM is not defined');
 }
+if (!GMAIL_CLIENT_ID) {
+  throw new Error('GMAIL_CLIENT_ID is not defined');
+}
+if (!GMAIL_CLIENT_SECRET) {
+  throw new Error('GMAIL_CLIENT_SECRET is not defined');
+}
+if (!GMAIL_REFRESH_TOKEN) {
+  throw new Error('GMAIL_REFRESH_TOKEN is not defined');
+}
 
 export default {
   port: PORT,
@@ -72,7 +81,10 @@ export default {
   emailUser: EMAIL_USER,
   emailPass: EMAIL_PASS,
   emailSecure: EMAIL_SECURE,
-  emailFrom: EMAIL_FROM
+  emailFrom: EMAIL_FROM,
+  gmailClientId: GMAIL_CLIENT_ID,
+  gmailClientSecret: GMAIL_CLIENT_SECRET,
+  gmailRefreshToken: GMAIL_REFRESH_TOKEN
 };
 
 

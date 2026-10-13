@@ -65,7 +65,7 @@ const container = {
 };
 
 const header = {
-  backgroundColor: '#4CAF50',
+  backgroundColor: '#2354b6',
   padding: '20px',
   textAlign: 'center' as const,
   borderRadius: '8px 8px 0 0',

@@ -41,7 +41,7 @@ const sessionService: ISessionService = new SessionService(sessionRepository);
  * @returns {Promise<Response>} 500 - Error interno del servidor al procesar el registro.
  */
 export const registerUSer = async (req: Request, res: Response) => {
-    console.log("entreó en el controller de register user");
+    console.log("Controlador de Registroo de usuario activado");
     try {
         const email: string = req.body.email;
 
@@ -60,7 +60,6 @@ export const registerUSer = async (req: Request, res: Response) => {
         }
 
         const newUser: User = req.body;
-        console.log("Procede a entrar en el servicio");
         const result = await userService.createUser(newUser);
 
         // token JWT

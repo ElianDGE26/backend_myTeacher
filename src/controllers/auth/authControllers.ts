@@ -13,7 +13,7 @@ import { TokenService } from "../../services/sessionsService";
 import { ISessionService, Session } from "../../types/sessionTypes";
 import { SessionRepository } from "../../repositories/sessionRepository"
 import { SessionService } from "../../services/sessionsService";
-import { sendRegistrationSuccessEmail } from "../../services/emailService";
+import { sendPasswordChangeEmail, sendRegistrationSuccessEmail } from "../../services/emailService";
 import { ref } from "process";
 import mongoose, { Types } from "mongoose";
 import { constructFromSymbol } from "date-fns/constants";
@@ -199,12 +199,20 @@ export const changePassword = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Inavlid current pasword" });
         }
 
+        const hashPassword = await user.encryptPassword(newPassword);
+        //console.log("Contraseña nueva", hashPassword);
+
         //actaulizamos la contraseña en la bdd
-        const updatePassword = await userService.updateUserById(new mongoose.Types.ObjectId(user._id as string), { password: newPassword });
+        const updatePassword = await userService.updateUserById(new mongoose.Types.ObjectId(user._id as string), { password: hashPassword });
 
         if (!updatePassword) {
             return res.status(500).json({ message: "Error updating password" });
         }
+
+
+        // El envío se hace de forma asíncrona sin bloquear la respuesta al frontend
+        sendPasswordChangeEmail(email, user.name).catch(console.error);
+
 
         res.status(200).json({ message: "Password updated successfull" });
 

@@ -5,6 +5,7 @@ import { render } from '@react-email/render';
 import { RegistrationEmail } from "../emails/RegistrationEmail";
 import { BookingEmail } from "../emails/BookingEmail";
 import { CustomEmail } from "../emails/CustomEmail";
+import { PasswordChangeEmail } from "../emails/PasswordChangeEmail";
 
 /**
  * @fileoverview Servicio de Correos Electrónicos (Email Service)
@@ -178,6 +179,26 @@ export const sendRegistrationSuccessEmail = async (to: string, name: string) => 
     
     const html = await render(
         RegistrationEmail({ name })
+    );
+
+    await sendEmail(to, subject, text, html);
+};
+
+/**
+* Envía un correo notificando el cambio exitoso de contraseña de un usuario en MyTeacher.
+*
+* @param to Correo del usuario
+* @param name Nombre del usuario
+*/
+export const sendPasswordChangeEmail = async (to: string, name: string) => {
+    console.log("Servicio de envío de email activado...");
+
+    const subject = "¡Contraseña actualizada en MyTeacher!";
+
+    const text = `Hola ${ name }, tu contraseña en MyTeacher se ha cambiado exitosamente.Si realizaste este cambio, no necesitas hacer nada más.Si no reconoces esta actividad, te recomendamos restablecer tu contraseña inmediatamente y contactar al equipo de soporte.Gracias por confiar en MyTeacher. ¡Tu seguridad es importante para nosotros! Equipo MyTeacher`;
+
+    const html = await render(
+        PasswordChangeEmail({ name })
     );
 
     await sendEmail(to, subject, text, html);

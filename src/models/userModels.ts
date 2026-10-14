@@ -16,7 +16,7 @@ const UserSchema: Schema = new Schema<User>(
       enum: ["Estudiante", "Tutor", "Admin"],
       required: true,
     },
-    balance: { type: Number, required: false, default: 0 },
+    balance: { type: Number, required: false, default: 50000 },
     validatedTeacher: { type: Boolean, default: false },
     phone: { type: String, required: true },
     location: {
@@ -61,6 +61,12 @@ UserSchema.pre<User>("save", async function (next){
 
 UserSchema.method("comparePassword", async function (passwordCompare: string): Promise<boolean> {
   return bcrypt.compare(passwordCompare, this.password as string);
+});
+
+UserSchema.method("encryptPassword", async function (password: string): Promise<string>{
+  const salt = await bcrypt.genSalt(12);
+  const hash = await bcrypt.hash(password, salt);
+  return hash;
 });
 
 export const UserModel = mongoose.model<User>(COLLECTION_NAME, UserSchema);

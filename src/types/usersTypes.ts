@@ -18,6 +18,7 @@ export interface User extends Document {
         rewiewsCount: number;
     };
     comparePassword(password: string): Promise<boolean>;
+    encryptPassword(password: string): Promise<string>;
 }
 
 export interface IUserRepository extends Repository<User> {

@@ -86,7 +86,7 @@ router.put("/update/:id", verifyToken, updateUserByid);
  * @route PUT /api/users/auth/change-password
  * @access Público
  * @param {string} body.email - Correo electrónico del usuario.
- * @param {string} body.oldPassword - Contraseña actual del usuario.
+ * @param {string} body.password - Contraseña actual del usuario.
  * @param {string} body.newPassword - Nueva contraseña a asignar.
  */
 router.put("/auth/change-password", changePassword);

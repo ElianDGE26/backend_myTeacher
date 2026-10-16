@@ -7,6 +7,7 @@
 import { Types } from "mongoose";
 import { Query } from "../types/reporsitoryTypes";
 import { IUserRepository, IUserService, User } from "../types/usersTypes";
+import bcrypt from "bcryptjs";
 
 /**
  * Servicio encargado de gestionar las operaciones de usuarios y sus perfiles.
@@ -95,4 +96,16 @@ export class UserService implements IUserService {
         return this.userRepository.delete(id);
     }
 
-}
+    /**
+     * Encripta una contraseña utilizando bcrypt.
+     *
+     * @async
+     * @param {string} password - Contraseña a encriptar.
+     * @returns {Promise<string>} Promesa que resuelve con la contraseña encriptada.
+     */
+    async encryptPassword(password: string): Promise<string> {
+        const salt = await bcrypt.genSalt(12);
+        return await bcrypt.hash(password, salt);
+    }
+
+}

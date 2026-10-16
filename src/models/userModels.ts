@@ -63,12 +63,6 @@ UserSchema.method("comparePassword", async function (passwordCompare: string): P
   return bcrypt.compare(passwordCompare, this.password as string);
 });
 
-UserSchema.method("encryptPassword", async function (password: string): Promise<string>{
-  const salt = await bcrypt.genSalt(12);
-  const hash = await bcrypt.hash(password, salt);
-  return hash;
-});
-
 export const UserModel = mongoose.model<User>(COLLECTION_NAME, UserSchema);
 
 

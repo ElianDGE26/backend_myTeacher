@@ -6,20 +6,8 @@
  */
 
 import { Router } from "express";
-import { 
-    createUser, 
-    getAllUsers, 
-    getUserByid, 
-    updateUserByid, 
-    deleteUserByid 
-} from "../controllers/userControllers";
-import { 
-    loginUser, 
-    registerUSer, 
-    changePassword, 
-    logoutUser, 
-    refreshToken 
-} from "../controllers/auth/authControllers";
+import { createUser,  getAllUsers, getUserByid, updateUserByid, deleteUserByid } from "../controllers/userControllers";
+import { loginUser, registerUSer, changePassword, logoutUser, refreshToken, forgotPassword } from "../controllers/auth/authControllers";
 import { verifyToken } from "../middelwears/authMiddelwears";
 
 const router = Router();
@@ -90,6 +78,17 @@ router.put("/update/:id", verifyToken, updateUserByid);
  * @param {string} body.newPassword - Nueva contraseña a asignar.
  */
 router.put("/auth/change-password", changePassword);
+
+/**
+ * Permite recuperar la contraseña de un usuario enviandole un correo electronico con una nueva contraseña random,
+ * la cual debera cambiar al ingresar a la página.
+ *
+ * @name PUT /auth/forgot-password
+ * @route PUT /api/users/auth/forgot-password
+ * @access Público
+ * @param {string} body.email - Correo electrónico del usuario.
+ */
+router.put("/auth/forgot-password", forgotPassword);
 
 // ==========================================
 // Rutas DELETE

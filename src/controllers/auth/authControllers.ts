@@ -8,18 +8,13 @@ import { IUserRepository, IUserService, User } from "../../types/usersTypes";
 import { UserRepository } from "../../repositories/userRepositories";
 import { UserService } from "../../services/userService";
 import { Request, Response } from "express";
-import config from '../../config/config';
 import { TokenService } from "../../services/sessionsService";
 import { ISessionService, Session } from "../../types/sessionTypes";
 import { SessionRepository } from "../../repositories/sessionRepository"
 import { SessionService } from "../../services/sessionsService";
-import { sendPasswordChangeEmail, sendRegistrationSuccessEmail } from "../../services/emailService";
-import { ref } from "process";
+import { sendPasswordChangeEmail, sendRegistrationSuccessEmail, sendTemporaryPasswordEmail } from "../../services/emailService";
+import { generateTemporaryPassword } from "../../utils/generateTemporaryPassword"
 import mongoose, { Types } from "mongoose";
-import { constructFromSymbol } from "date-fns/constants";
-
-// Clave secreta para firmar los tokens JWT
-const SECRET_KEY = config.jwtSecret;
 
 const userRepository: IUserRepository = new UserRepository();
 const userService: IUserService = new UserService(userRepository);
@@ -199,7 +194,7 @@ export const changePassword = async (req: Request, res: Response) => {
             return res.status(401).json({ message: "Inavlid current pasword" });
         }
 
-        const hashPassword = await user.encryptPassword(newPassword);
+        const hashPassword = await userService.encryptPassword(newPassword);
         //console.log("Contraseña nueva", hashPassword);
 
         //actaulizamos la contraseña en la bdd
@@ -209,15 +204,66 @@ export const changePassword = async (req: Request, res: Response) => {
             return res.status(500).json({ message: "Error updating password" });
         }
 
-
         // El envío se hace de forma asíncrona sin bloquear la respuesta al frontend
         sendPasswordChangeEmail(email, user.name).catch(console.error);
-
 
         res.status(200).json({ message: "Password updated successfull" });
 
     } catch (error) {
         console.error("Error changing password: ", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+
+/**
+ * Permite a un usuario recuperar su contraseña actual enviandole un email con una nueva contraseña aleatoria.
+ *
+ * @route PUT /api/users/auth/forgot-password
+ * @access Público / Autenticado
+ * @param {Request} req - Objeto de solicitud HTTP de Express.
+ * @param {Object} req.body - Datos para el cambio de contraseña.
+ * @param {string} req.body.email - Email del usuario.
+ * @param {Response} res - Objeto de respuesta HTTP de Express.
+ * @returns {Promise<Response>} 200 - Contraseña actualizada exitosamente.
+ * @returns {Promise<Response>} 400 - Faltan campos requeridos (email).
+ * @returns {Promise<Response>} 404 - Usuario no encontrado con ese email.
+ * @returns {Promise<Response>} 500 - Error interno del servidor o al guardar la nueva contraseña.
+ */
+export const forgotPassword = async (req: Request, res: Response) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        const user = await userService.findUserByEmail(email);
+
+        //el usuario no existe en la bdd
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        //Genramos contraseña aleatoria
+        const randomPassword = generateTemporaryPassword(20);
+        //console.log("Contrasela aleatoria", randomPassword);
+        //Hasheamos contraseña
+        const hashPassword = await userService.encryptPassword(randomPassword);
+
+        //Actualizamo la contraseña
+        const updatePassword = await userService.updateUserById(new mongoose.Types.ObjectId(user._id as string), { password: hashPassword });
+
+        if (!updatePassword) {
+            return res.status(500).json({ message: "Server internal error" });
+        }
+
+        //enviamos el email al usuario
+        sendTemporaryPasswordEmail(email, user.name, randomPassword).catch(console.error);
+        res.status(200).json({ message: "Email with new password temporary sent" })
+
+
+    } catch (error) {
+        console.error("Error forgot password: ", error);
         res.status(500).json({ message: "Internal server error" });
     }
 }

@@ -32,5 +32,6 @@ export interface IUserService {
     findUserByEmail(email: string): Promise<User | null>;
     updateUserById(id: Types.ObjectId, user: Partial<User>): Promise<User | null>;
     deleteUserById(id: Types.ObjectId): Promise<boolean>;
+    encryptPassword(password: string): Promise<string>;
     
 }

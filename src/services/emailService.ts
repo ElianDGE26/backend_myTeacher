@@ -6,7 +6,7 @@ import { RegistrationEmail } from "../emails/RegistrationEmail";
 import { BookingEmail } from "../emails/BookingEmail";
 import { CustomEmail } from "../emails/CustomEmail";
 import { PasswordChangeEmail } from "../emails/PasswordChangeEmail";
-
+import { TemporaryPasswordEmail } from "../emails/TemporaryPasswordEmail";
 /**
  * @fileoverview Servicio de Correos Electrónicos (Email Service)
  * @module services/emailService
@@ -88,7 +88,7 @@ export const sendEmail = async (to: string, subject: string, text: string, html?
             requestBody: { raw },
         });
 
-        console.log(`Correo enviado a ${to}: ${response.data.id}`);
+        console.log(`Correo enviado a ${to}`);
         return response.data;
     } catch (error) {
         console.error(`Error enviando correo a ${to}:`, error);
@@ -232,6 +232,45 @@ export const sendCustomEmail = async (
             previewText,
             buttonText,
             buttonLink
+        })
+    );
+
+    await sendEmail(to, subject, text, html);
+};
+
+/**
+ * Envía un correo con una contraseña temporal para recuperar
+ * el acceso a la cuenta de MyTeacher.
+ *
+ * @param to Correo del usuario
+ * @param name Nombre del usuario
+ * @param temporaryPassword Contraseña temporal generada en el backend
+ */
+export const sendTemporaryPasswordEmail = async (
+    to: string,
+    name: string,
+    temporaryPassword: string
+) => {
+    const subject = "Recuperación de contraseña - MyTeacher";
+
+    const text = `Hola ${name},
+
+        Hemos recibido una solicitud para recuperar el acceso a tu cuenta de MyTeacher.
+
+        Tu contraseña temporal es: ${temporaryPassword}
+
+        Ingresa a la plataforma utilizando esta contraseña y cámbiala por una nueva y segura lo antes posible.
+
+        Si no solicitaste recuperar tu cuenta, contacta al equipo de soporte de MyTeacher.
+
+        Gracias,
+        Equipo MyTeacher`;
+
+    // Generamos el HTML del correo usando React Email.
+    const html = await render(
+        TemporaryPasswordEmail({
+            name,
+            temporaryPassword
         })
     );
 
